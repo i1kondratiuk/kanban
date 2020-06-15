@@ -6,5 +6,6 @@ import "github.com/i1kondratiuk/kanban/domain/entity/common"
 type Board struct {
 	Id          common.Id `json:"id"`
 	Name        string    `json:"name"`
+	Description string    `json:"description"`
 	Columns     []Column  `json:"columns"`
 }
