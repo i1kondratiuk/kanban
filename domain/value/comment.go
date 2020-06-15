@@ -1,6 +1,8 @@
 package value
 
+type BodyText string
+
 // Comment represents a comment
 type Comment struct {
-	Body string `json:"body"`
+	BodyText BodyText `json:"bodyText"`
 }
