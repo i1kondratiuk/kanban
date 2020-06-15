@@ -7,7 +7,7 @@ import (
 
 // TaskRepository represents a storage of all existing tasks
 type TaskRepository interface {
-	GetAllTasksBy(parentColumnId value.Id) (*[]entity.Column, error)
+	GetAllBy(parentColumnId value.Id) ([]*entity.Task, error)
 }
 
 var taskRepository TaskRepository

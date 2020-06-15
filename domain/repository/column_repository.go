@@ -7,7 +7,7 @@ import (
 
 // ColumnRepository represents a storage of all existing columns
 type ColumnRepository interface {
-	GetAllColumnsBy(parentBoardId common.Id) (*[]entity.Column, error)
+	GetAllWithRelatedTasksBy(parentBoardId common.Id) ([]*entity.Column, error)
 }
 
 var columnRepository ColumnRepository

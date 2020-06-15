@@ -1,12 +1,13 @@
 package repository
 
 import (
-	"github.com/i1kondratiuk/kanban/domain/value"
+	"github.com/i1kondratiuk/kanban/domain/entity"
+	"github.com/i1kondratiuk/kanban/domain/entity/common"
 )
 
 // CommentRepository represents a storage of all existing comments
 type CommentRepository interface {
-	GetAllCommentsBy(parentId value.Id) (*[]value.Comment, error)
+	GetAllBy(parentId common.Id) ([]*entity.Comment, error)
 }
 
 var commentRepository CommentRepository
