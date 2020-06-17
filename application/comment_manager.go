@@ -9,7 +9,7 @@ import (
 
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
 type CommentManagerApp interface {
-	GetAllParentCommentsGroupedByCreatedDateTime(parentId *common.Id) ([]*entity.Comment, error)
+	GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*entity.Comment, error)
 	Create(newComment *entity.Comment) (*entity.Comment, error)
 	UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*entity.Comment, error)
 	Delete(storedCommentId common.Id) error
@@ -33,24 +33,40 @@ func GetCommentManagerApp() CommentManagerApp {
 // CommentManagerAppImpl implements the CommentManagerApp interface
 var _ CommentManagerApp = &CommentManagerAppImpl{}
 
-func (c CommentManagerAppImpl) GetAllParentCommentsGroupedByCreatedDateTime(parentId *common.Id) ([]*entity.Comment, error) {
-	storedComments, err := repository.GetCommentRepository().GetAllBy(*parentId)
+func (c CommentManagerAppImpl) GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*entity.Comment, error) {
+	storedComments, err := repository.GetCommentRepository().GetGroupedByCreatedDateTimeBy(parentId)
 
 	if err != nil {
-		panic(err)
+		return storedComments, err
 	}
 
 	return storedComments, nil
 }
 
 func (c CommentManagerAppImpl) Create(newComment *entity.Comment) (*entity.Comment, error) {
-	panic("implement me")
+	insertedComment, err := repository.GetCommentRepository().Insert(newComment)
+
+	if err != nil {
+		return insertedComment, err
+	}
+
+	return insertedComment, nil
 }
 
 func (c CommentManagerAppImpl) UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*entity.Comment, error) {
-	panic("implement me")
+	updatedComment, err := repository.GetCommentRepository().Update(storedCommentId, newBodyText)
+
+	if err != nil {
+		return updatedComment, err
+	}
+
+	return updatedComment, nil
 }
 
 func (c CommentManagerAppImpl) Delete(storedCommentId common.Id) error {
-	panic("implement me")
+	if err := repository.GetCommentRepository().Delete(storedCommentId); err != nil {
+		return err
+	}
+
+	return nil
 }

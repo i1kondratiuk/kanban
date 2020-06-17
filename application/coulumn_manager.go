@@ -10,9 +10,9 @@ import (
 type ColumnManagerApp interface {
 	GetAllColumnsWithRelatedTasks(boardId *common.Id) ([]*entity.Column, error)
 	Create(newColumn *entity.Column) (*entity.Column, error)
-	Rename(columnId common.Id, newName string) error
-	Delete(storedColumn *entity.Column) error
-	ChangePosition(columnId common.Id, newPosition int) error
+	Rename(columnId common.Id, newName string) (*entity.Column, error)
+	ChangePosition(columnId common.Id, newPosition int) (*entity.Column, error)
+	Delete(storedColumnId common.Id) error
 }
 
 // ColumnManagerAppImpl is the implementation of ColumnManagerApp
@@ -44,17 +44,39 @@ func (a *ColumnManagerAppImpl) GetAllColumnsWithRelatedTasks(boardId *common.Id)
 }
 
 func (a *ColumnManagerAppImpl) Create(newColumn *entity.Column) (*entity.Column, error) {
-	panic("implement me")
+	insertedColumn, err := repository.GetColumnRepository().Insert(newColumn)
+
+	if err != nil {
+		return insertedColumn, err
+	}
+
+	return insertedColumn, nil
 }
 
-func (a *ColumnManagerAppImpl) Rename(columnId common.Id, newName string) error {
-	panic("implement me")
+func (a *ColumnManagerAppImpl) Rename(columnId common.Id, newName string) (*entity.Column, error) {
+	renamedColumn, err := repository.GetColumnRepository().UpdateName(columnId, newName)
+
+	if err != nil {
+		return renamedColumn, err
+	}
+
+	return renamedColumn, nil
 }
 
-func (a *ColumnManagerAppImpl) Delete(storedColumn *entity.Column) error {
-	panic("implement me")
+func (a *ColumnManagerAppImpl) ChangePosition(columnId common.Id, newPosition int) (*entity.Column, error) {
+	repositionedColumn, err := repository.GetColumnRepository().UpdatePosition(columnId, newPosition)
+
+	if err != nil {
+		return repositionedColumn, err
+	}
+
+	return repositionedColumn, nil
 }
 
-func (a *ColumnManagerAppImpl) ChangePosition(columnId common.Id, newPosition int) error {
-	panic("implement me")
+func (a *ColumnManagerAppImpl) Delete(storedColumnId common.Id) error {
+	if err := repository.GetColumnRepository().Delete(storedColumnId); err != nil {
+		return err
+	}
+
+	return nil
 }

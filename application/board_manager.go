@@ -43,13 +43,29 @@ func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*entity.Board, er
 }
 
 func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*entity.Board, error) {
-	panic("implement me")
+	insertedBoard, err := repository.GetBoardRepository().Insert(newBoard)
+
+	if err != nil {
+		return insertedBoard, err
+	}
+
+	return insertedBoard, nil
 }
 
 func (a *BoardManagerAppImpl) Update(modifiedBoard *entity.Board) (*entity.Board, error) {
-	panic("implement me")
+	updatedBoard, err := repository.GetBoardRepository().Update(modifiedBoard)
+
+	if err != nil {
+		return updatedBoard, err
+	}
+
+	return updatedBoard, nil
 }
 
 func (a *BoardManagerAppImpl) Delete(storedBoardId common.Id) error {
-	panic("implement me")
+	if err := repository.GetBoardRepository().Delete(storedBoardId); err != nil {
+		return err
+	}
+
+	return nil
 }
