@@ -8,7 +8,7 @@ import (
 
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
 type BoardManagerApp interface {
-	GetAllBoardsSortedByName() ([]*entity.Board, error)
+	GetAllBoardsSortedByNameAsc() ([]*entity.Board, error)
 	Create(newBoard *entity.Board) (*entity.Board, error)
 	Update(modifiedBoard *entity.Board) (*entity.Board, error)
 	Delete(storedBoardId common.Id) error
@@ -32,8 +32,8 @@ func GetBoardManagerApp() BoardManagerApp {
 // BoardManagerAppImpl implements the KanbanBoardApp interface
 var _ BoardManagerApp = &BoardManagerAppImpl{}
 
-func (a *BoardManagerAppImpl) GetAllBoardsSortedByName() ([]*entity.Board, error) {
-	storedBoards, err := repository.GetBoardRepository().GetAllSortedByName()
+func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*entity.Board, error) {
+	storedBoards, err := repository.GetBoardRepository().GetAllSortedByNameAsc()
 
 	if err != nil {
 		panic(err)

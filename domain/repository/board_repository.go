@@ -4,7 +4,7 @@ import "github.com/i1kondratiuk/kanban/domain/entity"
 
 // BoardRepository represents a storage of all existing boards
 type BoardRepository interface {
-	GetAllSortedByName() ([]*entity.Board, error)
+	GetAllSortedByNameAsc() ([]*entity.Board, error)
 }
 
 var boardRepository BoardRepository
