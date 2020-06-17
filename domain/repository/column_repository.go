@@ -8,6 +8,8 @@ import (
 // ColumnRepository represents a storage of all existing columns
 type ColumnRepository interface {
 	GetAllWithRelatedTasksBy(parentBoardId common.Id) ([]*entity.Column, error)
+	GetBoardId(columnId common.Id) (parentBoardId common.Id, err error)
+	CountAllBy(parentBoardId common.Id) (int, error)
 	Insert(newColumn *entity.Column) (*entity.Column, error)
 	UpdatePosition(columnId common.Id, newName int) (*entity.Column, error)
 	UpdateName(columnId common.Id, newName string) (*entity.Column, error)

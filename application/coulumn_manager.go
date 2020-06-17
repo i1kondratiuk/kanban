@@ -4,6 +4,7 @@ import (
 	"github.com/i1kondratiuk/kanban/domain/entity"
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 	"github.com/i1kondratiuk/kanban/domain/repository"
+	"github.com/i1kondratiuk/kanban/domain/service"
 )
 
 // ColumnManagerApp represents ColumnManagerApp application to be called by interface layer
@@ -74,6 +75,16 @@ func (a *ColumnManagerAppImpl) ChangePosition(columnId common.Id, newPosition in
 }
 
 func (a *ColumnManagerAppImpl) Delete(storedColumnId common.Id) error {
+	parentBoardId, err := repository.GetColumnRepository().GetBoardId(storedColumnId)
+
+	if err != nil {
+		return err
+	}
+
+	if err := service.GetColumnService().HasColumns(parentBoardId); err != nil {
+		return err
+	}
+
 	if err := repository.GetColumnRepository().Delete(storedColumnId); err != nil {
 		return err
 	}

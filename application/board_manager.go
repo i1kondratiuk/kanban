@@ -49,6 +49,16 @@ func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*entity.Board, err
 		return insertedBoard, err
 	}
 
+	_, err = repository.GetColumnRepository().Insert(
+		&entity.Column{
+			Board: *insertedBoard,
+		},
+	)
+
+	if err != nil {
+		return insertedBoard, err
+	}
+
 	return insertedBoard, nil
 }
 
