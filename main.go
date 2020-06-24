@@ -36,6 +36,8 @@ func init() {
 		configuration.Database.Driver,
 	)
 
+	repository.InitBoardRepository(persistence.NewBoardRepository(db))
+
 	if err != nil {
 		panic(err.Error())
 	}
