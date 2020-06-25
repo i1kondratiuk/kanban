@@ -37,7 +37,7 @@ func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*entity.Board, er
 	storedBoards, err := repository.GetBoardRepository().GetAllSortedByNameAsc()
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return storedBoards, nil
@@ -47,13 +47,13 @@ func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*entity.Board, err
 	insertedBoard, err := repository.GetBoardRepository().Insert(newBoard)
 
 	if err != nil {
-		return insertedBoard, err
+		return nil, err
 	}
 
 	_, err = repository.GetColumnRepository().Insert(service.GetColumnService().CreateDefaultColumn(insertedBoard.Id))
 
 	if err != nil {
-		return insertedBoard, err
+		return nil, err
 	}
 
 	return insertedBoard, nil
@@ -63,7 +63,7 @@ func (a *BoardManagerAppImpl) Update(modifiedBoard *entity.Board) (*entity.Board
 	updatedBoard, err := repository.GetBoardRepository().Update(modifiedBoard)
 
 	if err != nil {
-		return updatedBoard, err
+		return nil, err
 	}
 
 	return updatedBoard, nil
