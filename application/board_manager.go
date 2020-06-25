@@ -4,6 +4,7 @@ import (
 	"github.com/i1kondratiuk/kanban/domain/entity"
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 	"github.com/i1kondratiuk/kanban/domain/repository"
+	"github.com/i1kondratiuk/kanban/domain/service"
 )
 
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
@@ -49,11 +50,7 @@ func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*entity.Board, err
 		return insertedBoard, err
 	}
 
-	_, err = repository.GetColumnRepository().Insert(
-		&entity.Column{
-			Board: *insertedBoard,
-		},
-	)
+	_, err = repository.GetColumnRepository().Insert(service.GetColumnService().CreateDefaultColumn(insertedBoard.Id))
 
 	if err != nil {
 		return insertedBoard, err
