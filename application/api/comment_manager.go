@@ -1,4 +1,4 @@
-package application
+package api
 
 import (
 	"github.com/i1kondratiuk/kanban/domain/entity"
@@ -34,7 +34,7 @@ func GetCommentManagerApp() CommentManagerApp {
 var _ CommentManagerApp = &CommentManagerAppImpl{}
 
 func (c CommentManagerAppImpl) GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*entity.Comment, error) {
-	storedComments, err := repository.GetCommentRepository().GetGroupedByCreatedDateTimeBy(parentId)
+	storedComments, err := repository.GetCommentRepository().GetOrderedByCreatedDateTimeBy(parentId)
 
 	if err != nil {
 		return storedComments, err

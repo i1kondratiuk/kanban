@@ -1,4 +1,4 @@
-package application
+package api
 
 import (
 	"github.com/i1kondratiuk/kanban/domain/entity"
