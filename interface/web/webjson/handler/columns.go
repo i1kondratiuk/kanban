@@ -5,12 +5,12 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/i1kondratiuk/kanban/application"
+	"github.com/i1kondratiuk/kanban/application/api"
 )
 
 // ColumnManagerAppHandler handler
 type ColumnManagerAppHandler struct {
-	ColumnManagerApp application.ColumnManagerApp
+	ColumnManagerApp api.ColumnManagerApp
 }
 
 // AddRoutes adds ColumnManagerAppHandler routs

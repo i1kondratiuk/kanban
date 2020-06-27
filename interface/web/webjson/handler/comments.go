@@ -5,12 +5,12 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/i1kondratiuk/kanban/application"
+	"github.com/i1kondratiuk/kanban/application/api"
 )
 
 // CommentManagerAppHandler handler
 type CommentManagerAppHandler struct {
-	CommentManagerApp application.CommentManagerApp
+	CommentManagerApp api.CommentManagerApp
 }
 
 // AddRoutes adds CommentManagerAppHandler routs
