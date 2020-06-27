@@ -8,7 +8,7 @@ import (
 
 // CommentRepository represents a storage of all existing comments
 type CommentRepository interface {
-	GetGroupedByCreatedDateTimeBy(parentId common.Id) ([]*entity.Comment, error)
+	GetOrderedByCreatedDateTimeBy(parentId common.Id) ([]*entity.Comment, error)
 	GetAllBy(parentId common.Id) ([]*entity.Comment, error)
 	Insert(newComment *entity.Comment) (*entity.Comment, error)
 	Update(storedCommentId common.Id, newBodyText value.BodyText) (*entity.Comment, error)

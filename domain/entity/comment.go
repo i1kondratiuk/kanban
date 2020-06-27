@@ -7,7 +7,7 @@ import (
 
 // Comment represents a comment
 type Comment struct {
-	Id              common.Id              `json:"id"`
-	CreatedDateTime common.CreatedDateTime `json:"createdDateTime"`
-	Comment         value.Comment          `json:"comment"`
+	Id              common.Id
+	CreatedDateTime common.CreatedDateTime
+	Comment         value.Comment
 }
