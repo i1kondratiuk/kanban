@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 	"github.com/i1kondratiuk/kanban/domain/repository"
 )
@@ -16,8 +17,8 @@ type BoardServiceImpl struct{}
 
 var boardService BoardService
 
-// GetColumnService returns a BoardService
-func GetColumnService() BoardService {
+// GetBoardService returns a BoardService
+func GetBoardService() BoardService {
 	return boardService
 }
 

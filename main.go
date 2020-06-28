@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/i1kondratiuk/kanban/application"
+	"github.com/i1kondratiuk/kanban/application/api"
 	"github.com/i1kondratiuk/kanban/config"
 	"github.com/i1kondratiuk/kanban/domain/repository"
 	"github.com/i1kondratiuk/kanban/infrastructure/persistence"
@@ -44,10 +44,10 @@ func init() {
 }
 
 func main() {
-	application.InitBoardManagerApp(&application.BoardManagerAppImpl{})
-	application.InitColumnManagerApp(&application.ColumnManagerAppImpl{})
-	application.InitCommentManagerApp(&application.CommentManagerAppImpl{})
-	application.InitTaskManagerApp(&application.TaskManagerAppImpl{})
+	api.InitBoardManagerApp(&api.BoardManagerAppImpl{})
+	api.InitColumnManagerApp(&api.ColumnManagerAppImpl{})
+	api.InitCommentManagerApp(&api.CommentManagerAppImpl{})
+	api.InitTaskManagerApp(&api.TaskManagerAppImpl{})
 
 	handler.Run(8080)
 }
