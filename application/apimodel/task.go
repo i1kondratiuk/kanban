@@ -1,4 +1,4 @@
-package model
+package apimodel
 
 import (
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
@@ -11,5 +11,5 @@ type Task struct {
 	Description string     `json:"description"`
 	Priority    int        `json:"priority"`
 	Position    int        `json:"position"`
-	Comments    []*Comment `json:"comments"`
+	Comments    []*Comment `json:"comments,omitempty"`
 }

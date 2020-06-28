@@ -1,4 +1,4 @@
-package model
+package apimodel
 
 import "github.com/i1kondratiuk/kanban/domain/entity/common"
 
@@ -7,5 +7,5 @@ type Column struct {
 	Id       common.Id `json:"id"`
 	Name     string    `json:"name"`
 	Position int       `json:"position"`
-	Tasks    []*Task   `json:"tasks"`
+	Tasks    []*Task   `json:"tasks,omitempty"`
 }

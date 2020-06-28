@@ -27,8 +27,11 @@ func InitBoardService(a BoardService) {
 	boardService = a
 }
 
+// BoardServiceImpl implements the ColumnService interface
+var _ BoardService = &BoardServiceImpl{}
+
 // Checks whether the board has columns associated with it
-func (a *BoardServiceImpl) HasColumns(storedBoardId common.Id) error {
+func (s *BoardServiceImpl) HasColumns(storedBoardId common.Id) error {
 	storedColumnsNumber, err := repository.GetColumnRepository().CountAllBy(storedBoardId)
 
 	if err != nil {

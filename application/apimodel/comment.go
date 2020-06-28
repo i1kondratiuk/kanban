@@ -1,4 +1,4 @@
-package model
+package apimodel
 
 import (
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
