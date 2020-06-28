@@ -1,4 +1,4 @@
-package application
+package api
 
 import (
 	"github.com/i1kondratiuk/kanban/domain/entity"
@@ -65,8 +65,8 @@ func (a *TaskManagerAppImpl) Update(columnId common.Id, newName string, newDescr
 }
 
 func (a *TaskManagerAppImpl) DeleteWithAllComments(storedTaskId common.Id) error {
-	_, err := repository.GetCommentRepository().GetGroupedByCreatedDateTimeBy(storedTaskId)
-	// err = repository.GetCommentRepository().DeleteBulk(storedComments) // TODO pluck slice of Ids
+	_, err := repository.GetCommentRepository().GetAllBy(storedTaskId)
+	// err = repository.GetCommentRepository().DeleteBulk(storedComments)
 	err = repository.GetTaskRepository().Delete(storedTaskId)
 
 	if err != nil {

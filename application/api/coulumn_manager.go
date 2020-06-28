@@ -1,4 +1,4 @@
-package application
+package api
 
 import (
 	"github.com/i1kondratiuk/kanban/domain/entity"
@@ -81,7 +81,7 @@ func (a *ColumnManagerAppImpl) Delete(storedColumnId common.Id) error {
 		return err
 	}
 
-	if err := service.GetColumnService().HasColumns(parentBoardId); err != nil {
+	if err := service.GetBoardService().HasColumns(parentBoardId); err != nil {
 		return err
 	}
 

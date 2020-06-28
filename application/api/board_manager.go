@@ -1,14 +1,17 @@
-package application
+package api
 
 import (
+	"github.com/i1kondratiuk/kanban/application/dto"
+	"github.com/i1kondratiuk/kanban/application/model"
 	"github.com/i1kondratiuk/kanban/domain/entity"
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 	"github.com/i1kondratiuk/kanban/domain/repository"
+	"github.com/i1kondratiuk/kanban/domain/service"
 )
 
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
 type BoardManagerApp interface {
-	GetAllBoardsSortedByNameAsc() ([]*entity.Board, error)
+	GetAllBoardsSortedByNameAsc() ([]*model.Board, error)
 	Create(newBoard *entity.Board) (*entity.Board, error)
 	Update(modifiedBoard *entity.Board) (*entity.Board, error)
 	Delete(storedBoardId common.Id) error
@@ -32,31 +35,27 @@ func GetBoardManagerApp() BoardManagerApp {
 // BoardManagerAppImpl implements the KanbanBoardApp interface
 var _ BoardManagerApp = &BoardManagerAppImpl{}
 
-func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*entity.Board, error) {
+func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*model.Board, error) {
 	storedBoards, err := repository.GetBoardRepository().GetAllSortedByNameAsc()
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return storedBoards, nil
+	return dto.NewBoards(storedBoards), nil
 }
 
 func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*entity.Board, error) {
 	insertedBoard, err := repository.GetBoardRepository().Insert(newBoard)
 
 	if err != nil {
-		return insertedBoard, err
+		return nil, err
 	}
 
-	_, err = repository.GetColumnRepository().Insert(
-		&entity.Column{
-			Board: *insertedBoard,
-		},
-	)
+	_, err = repository.GetColumnRepository().Insert(service.GetColumnService().CreateDefaultColumn(insertedBoard.Id))
 
 	if err != nil {
-		return insertedBoard, err
+		return nil, err
 	}
 
 	return insertedBoard, nil
@@ -66,7 +65,7 @@ func (a *BoardManagerAppImpl) Update(modifiedBoard *entity.Board) (*entity.Board
 	updatedBoard, err := repository.GetBoardRepository().Update(modifiedBoard)
 
 	if err != nil {
-		return updatedBoard, err
+		return nil, err
 	}
 
 	return updatedBoard, nil

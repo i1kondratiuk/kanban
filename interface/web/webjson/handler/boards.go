@@ -5,12 +5,12 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/i1kondratiuk/kanban/application"
+	"github.com/i1kondratiuk/kanban/application/api"
 )
 
 // BoardManagerAppHandler ...
 type BoardManagerAppHandler struct {
-	BoardManagerApp application.BoardManagerApp
+	BoardManagerApp api.BoardManagerApp
 }
 
 // AddRoutes adds BoardManagerAppHandler routs

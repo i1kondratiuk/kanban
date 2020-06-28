@@ -5,12 +5,12 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/i1kondratiuk/kanban/application"
+	"github.com/i1kondratiuk/kanban/application/api"
 )
 
 // TaskManagerAppHandler handler
 type TaskManagerAppHandler struct {
-	TaskManagerApp application.TaskManagerApp
+	TaskManagerApp api.TaskManagerApp
 }
 
 // AddRoutes adds TaskManagerAppHandler routs
