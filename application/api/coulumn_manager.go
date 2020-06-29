@@ -1,6 +1,8 @@
 package api
 
 import (
+	"github.com/i1kondratiuk/kanban/application/apidto"
+	"github.com/i1kondratiuk/kanban/application/apimodel"
 	"github.com/i1kondratiuk/kanban/domain/entity"
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 	"github.com/i1kondratiuk/kanban/domain/repository"
@@ -9,11 +11,13 @@ import (
 
 // ColumnManagerApp represents ColumnManagerApp application to be called by interface layer
 type ColumnManagerApp interface {
-	GetAllColumnsWithRelatedTasks(boardId *common.Id) ([]*entity.Column, error)
-	Create(newColumn *entity.Column) (*entity.Column, error)
-	Rename(columnId common.Id, newName string) (*entity.Column, error)
-	ChangePosition(columnId common.Id, newPosition int) (*entity.Column, error)
-	Delete(storedColumnId common.Id) error
+	GetAllColumnsWithRelatedTasks(boardId *common.Id) ([]*apimodel.Column, error)
+	GetColumn(boardId *common.Id) (*apimodel.Column, error)
+	Create(newColumn *entity.Column) (*apimodel.Column, error)                    // TODO bulk create
+	Update(modifiedColumn *entity.Column) (*apimodel.Column, error)               // TODO bulk update
+	Rename(columnId common.Id, newName string) (*apimodel.Column, error)          // TODO use the app update logic instead
+	ChangePosition(columnId common.Id, newPosition int) (*apimodel.Column, error) // TODO use the app update logic instead
+	Delete(storedColumnId common.Id) error                                        // TODO bulk delete
 }
 
 // ColumnManagerAppImpl is the implementation of ColumnManagerApp
@@ -34,44 +38,64 @@ func GetColumnManagerApp() ColumnManagerApp {
 // ColumnManagerAppImpl implements the ColumnManagerApp interface
 var _ ColumnManagerApp = &ColumnManagerAppImpl{}
 
-func (a *ColumnManagerAppImpl) GetAllColumnsWithRelatedTasks(boardId *common.Id) ([]*entity.Column, error) {
+func (a *ColumnManagerAppImpl) GetAllColumnsWithRelatedTasks(boardId *common.Id) ([]*apimodel.Column, error) {
 	storedColumnsWithRelatedTasks, err := repository.GetColumnRepository().GetAllWithRelatedTasksBy(*boardId)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return storedColumnsWithRelatedTasks, nil
+	return apidto.NewColumnsFromAggregates(storedColumnsWithRelatedTasks), nil
 }
 
-func (a *ColumnManagerAppImpl) Create(newColumn *entity.Column) (*entity.Column, error) {
+func (a *ColumnManagerAppImpl) GetColumn(boardId *common.Id) (*apimodel.Column, error) {
+	storedColumn, err := repository.GetColumnRepository().GetBy(*boardId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return apidto.NewColumnFromEntity(storedColumn), nil
+}
+
+func (a *ColumnManagerAppImpl) Create(newColumn *entity.Column) (*apimodel.Column, error) {
 	insertedColumn, err := repository.GetColumnRepository().Insert(newColumn)
 
 	if err != nil {
-		return insertedColumn, err
+		return nil, err
 	}
 
-	return insertedColumn, nil
+	return apidto.NewColumnFromEntity(insertedColumn), nil
 }
 
-func (a *ColumnManagerAppImpl) Rename(columnId common.Id, newName string) (*entity.Column, error) {
+func (a *ColumnManagerAppImpl) Update(modifiedColumn *entity.Column) (*apimodel.Column, error) {
+	updatedColumn, err := repository.GetColumnRepository().Update(modifiedColumn)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return apidto.NewColumnFromEntity(updatedColumn), nil
+}
+
+func (a *ColumnManagerAppImpl) Rename(columnId common.Id, newName string) (*apimodel.Column, error) {
 	renamedColumn, err := repository.GetColumnRepository().UpdateName(columnId, newName)
 
 	if err != nil {
-		return renamedColumn, err
+		return nil, err
 	}
 
-	return renamedColumn, nil
+	return apidto.NewColumnFromEntity(renamedColumn), nil
 }
 
-func (a *ColumnManagerAppImpl) ChangePosition(columnId common.Id, newPosition int) (*entity.Column, error) {
+func (a *ColumnManagerAppImpl) ChangePosition(columnId common.Id, newPosition int) (*apimodel.Column, error) {
 	repositionedColumn, err := repository.GetColumnRepository().UpdatePosition(columnId, newPosition)
 
 	if err != nil {
-		return repositionedColumn, err
+		return nil, err
 	}
 
-	return repositionedColumn, nil
+	return apidto.NewColumnFromEntity(repositionedColumn), nil
 }
 
 func (a *ColumnManagerAppImpl) Delete(storedColumnId common.Id) error {

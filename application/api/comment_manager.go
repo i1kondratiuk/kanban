@@ -1,6 +1,8 @@
 package api
 
 import (
+	"github.com/i1kondratiuk/kanban/application/apidto"
+	"github.com/i1kondratiuk/kanban/application/apimodel"
 	"github.com/i1kondratiuk/kanban/domain/entity"
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 	"github.com/i1kondratiuk/kanban/domain/repository"
@@ -9,10 +11,10 @@ import (
 
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
 type CommentManagerApp interface {
-	GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*entity.Comment, error)
-	Create(newComment *entity.Comment) (*entity.Comment, error)
-	UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*entity.Comment, error)
-	Delete(storedCommentId common.Id) error
+	GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*apimodel.Comment, error)
+	Create(newComment *entity.Comment) (*apimodel.Comment, error)                                    // TODO bulk create
+	UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*apimodel.Comment, error) // TODO bulk update
+	Delete(storedCommentId common.Id) error                                                          // TODO bulk delete
 }
 
 // CommentManagerAppImpl is the implementation of CommentManagerApp
@@ -33,34 +35,34 @@ func GetCommentManagerApp() CommentManagerApp {
 // CommentManagerAppImpl implements the CommentManagerApp interface
 var _ CommentManagerApp = &CommentManagerAppImpl{}
 
-func (c CommentManagerAppImpl) GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*entity.Comment, error) {
+func (c CommentManagerAppImpl) GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*apimodel.Comment, error) {
 	storedComments, err := repository.GetCommentRepository().GetOrderedByCreatedDateTimeBy(parentId)
 
 	if err != nil {
-		return storedComments, err
+		return nil, err
 	}
 
-	return storedComments, nil
+	return apidto.NewComments(storedComments), nil
 }
 
-func (c CommentManagerAppImpl) Create(newComment *entity.Comment) (*entity.Comment, error) {
+func (c CommentManagerAppImpl) Create(newComment *entity.Comment) (*apimodel.Comment, error) {
 	insertedComment, err := repository.GetCommentRepository().Insert(newComment)
 
 	if err != nil {
-		return insertedComment, err
+		return nil, err
 	}
 
-	return insertedComment, nil
+	return apidto.NewComment(insertedComment), nil
 }
 
-func (c CommentManagerAppImpl) UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*entity.Comment, error) {
+func (c CommentManagerAppImpl) UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*apimodel.Comment, error) {
 	updatedComment, err := repository.GetCommentRepository().Update(storedCommentId, newBodyText)
 
 	if err != nil {
-		return updatedComment, err
+		return nil, err
 	}
 
-	return updatedComment, nil
+	return apidto.NewComment(updatedComment), nil
 }
 
 func (c CommentManagerAppImpl) Delete(storedCommentId common.Id) error {

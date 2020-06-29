@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/i1kondratiuk/kanban/application/dto"
-	"github.com/i1kondratiuk/kanban/application/model"
+	"github.com/i1kondratiuk/kanban/application/apidto"
+	"github.com/i1kondratiuk/kanban/application/apimodel"
 	"github.com/i1kondratiuk/kanban/domain/entity"
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 	"github.com/i1kondratiuk/kanban/domain/repository"
@@ -11,10 +11,11 @@ import (
 
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
 type BoardManagerApp interface {
-	GetAllBoardsSortedByNameAsc() ([]*model.Board, error)
-	Create(newBoard *entity.Board) (*entity.Board, error)
-	Update(modifiedBoard *entity.Board) (*entity.Board, error)
-	Delete(storedBoardId common.Id) error
+	GetAllBoardsSortedByNameAsc() ([]*apimodel.Board, error)
+	Get(boardId common.Id) (*apimodel.Board, error)
+	Create(newBoard *entity.Board) (*apimodel.Board, error)      // TODO bulk create
+	Update(modifiedBoard *entity.Board) (*apimodel.Board, error) // TODO bulk update
+	Delete(storedBoardId common.Id) error                        // TODO bulk delete
 }
 
 // BoardManagerAppImpl is the implementation of BoardManagerApp
@@ -35,17 +36,29 @@ func GetBoardManagerApp() BoardManagerApp {
 // BoardManagerAppImpl implements the KanbanBoardApp interface
 var _ BoardManagerApp = &BoardManagerAppImpl{}
 
-func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*model.Board, error) {
+func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*apimodel.Board, error) {
+
 	storedBoards, err := repository.GetBoardRepository().GetAllSortedByNameAsc()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return dto.NewBoards(storedBoards), nil
+	return apidto.NewBoardsFromEntity(storedBoards), nil
 }
 
-func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*entity.Board, error) {
+func (a *BoardManagerAppImpl) Get(boardId common.Id) (*apimodel.Board, error) {
+	storedBoard, err := repository.GetBoardRepository().GetBy(boardId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return apidto.NewBoardFromAggregate(storedBoard), nil
+}
+
+func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*apimodel.Board, error) {
+
 	insertedBoard, err := repository.GetBoardRepository().Insert(newBoard)
 
 	if err != nil {
@@ -58,17 +71,18 @@ func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*entity.Board, err
 		return nil, err
 	}
 
-	return insertedBoard, nil
+	return apidto.NewBoardFromEntity(insertedBoard), nil
 }
 
-func (a *BoardManagerAppImpl) Update(modifiedBoard *entity.Board) (*entity.Board, error) {
+func (a *BoardManagerAppImpl) Update(modifiedBoard *entity.Board) (*apimodel.Board, error) {
+
 	updatedBoard, err := repository.GetBoardRepository().Update(modifiedBoard)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return updatedBoard, nil
+	return apidto.NewBoardFromEntity(updatedBoard), nil
 }
 
 func (a *BoardManagerAppImpl) Delete(storedBoardId common.Id) error {

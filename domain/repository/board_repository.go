@@ -8,7 +8,8 @@ import (
 
 // BoardRepository represents a storage of all existing boards
 type BoardRepository interface {
-	GetAllSortedByNameAsc() ([]*aggregate.BoardAggregate, error)
+	GetAllSortedByNameAsc() ([]*entity.Board, error)
+	GetBy(boardId common.Id) (*aggregate.BoardAggregate, error)
 	Insert(newBoard *entity.Board) (*entity.Board, error)
 	Update(modifiedBoard *entity.Board) (*entity.Board, error)
 	Delete(storedBoardId common.Id) error
