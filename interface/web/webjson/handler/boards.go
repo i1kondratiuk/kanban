@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/i1kondratiuk/kanban/application/api"
-	"github.com/i1kondratiuk/kanban/domain/entity"
+  "github.com/i1kondratiuk/kanban/domain/entity"
 	"github.com/i1kondratiuk/kanban/domain/entity/common"
 )
 

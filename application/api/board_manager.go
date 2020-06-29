@@ -37,6 +37,7 @@ func GetBoardManagerApp() BoardManagerApp {
 var _ BoardManagerApp = &BoardManagerAppImpl{}
 
 func (a *BoardManagerAppImpl) GetAllBoardsSortedByNameAsc() ([]*apimodel.Board, error) {
+
 	storedBoards, err := repository.GetBoardRepository().GetAllSortedByNameAsc()
 
 	if err != nil {
@@ -57,6 +58,7 @@ func (a *BoardManagerAppImpl) Get(boardId common.Id) (*apimodel.Board, error) {
 }
 
 func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*apimodel.Board, error) {
+
 	insertedBoard, err := repository.GetBoardRepository().Insert(newBoard)
 
 	if err != nil {
@@ -73,6 +75,7 @@ func (a *BoardManagerAppImpl) Create(newBoard *entity.Board) (*apimodel.Board, e
 }
 
 func (a *BoardManagerAppImpl) Update(modifiedBoard *entity.Board) (*apimodel.Board, error) {
+
 	updatedBoard, err := repository.GetBoardRepository().Update(modifiedBoard)
 
 	if err != nil {
