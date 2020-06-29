@@ -13,13 +13,13 @@ type TaskManagerApp interface {
 	GetTaskWithAllCommentsGroupedByCreatedDateTime(taskId common.Id) (*apimodel.Task, error)
 	GetAllColumnTasks(parentColumnId common.Id) ([]*apimodel.Task, error)
 	GeTask(taskId common.Id) (*apimodel.Task, error)
-	Create(newTask *entity.Task) (*apimodel.Task, error)
-	Update(modifiedTask *entity.Task) (*apimodel.Task, error)
-	ChangeDescription(taskId common.Id, newDescription string) (*apimodel.Task, error)
-	ChangeName(taskId common.Id, newName string) (*apimodel.Task, error)
-	ChangeStatus(taskId common.Id, newParentColumnId common.Id) (*apimodel.Task, error)
-	Prioritize(taskId common.Id, priority int) (*apimodel.Task, error)
-	DeleteWithAllComments(storedTaskId common.Id) error
+	Create(newTask *entity.Task) (*apimodel.Task, error)                                // TODO bulk create
+	Update(modifiedTask *entity.Task) (*apimodel.Task, error)                           // TODO bulk update
+	ChangeDescription(taskId common.Id, newDescription string) (*apimodel.Task, error)  // TODO use the app update logic instead
+	ChangeName(taskId common.Id, newName string) (*apimodel.Task, error)                // TODO use the app update logic instead
+	ChangeStatus(taskId common.Id, newParentColumnId common.Id) (*apimodel.Task, error) // TODO use the app update logic instead
+	Prioritize(taskId common.Id, priority int) (*apimodel.Task, error)                  // TODO use the app update logic instead
+	DeleteWithAllComments(storedTaskId common.Id) error                                 // TODO bulk delete
 }
 
 // TaskManagerAppImpl is the implementation of UsersCounter

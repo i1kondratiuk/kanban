@@ -13,9 +13,9 @@ import (
 type BoardManagerApp interface {
 	GetAllBoardsSortedByNameAsc() ([]*apimodel.Board, error)
 	Get(boardId common.Id) (*apimodel.Board, error)
-	Create(newBoard *entity.Board) (*apimodel.Board, error)
-	Update(modifiedBoard *entity.Board) (*apimodel.Board, error)
-	Delete(storedBoardId common.Id) error
+	Create(newBoard *entity.Board) (*apimodel.Board, error)      // TODO bulk create
+	Update(modifiedBoard *entity.Board) (*apimodel.Board, error) // TODO bulk update
+	Delete(storedBoardId common.Id) error                        // TODO bulk delete
 }
 
 // BoardManagerAppImpl is the implementation of BoardManagerApp

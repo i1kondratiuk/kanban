@@ -13,11 +13,11 @@ import (
 type ColumnManagerApp interface {
 	GetAllColumnsWithRelatedTasks(boardId *common.Id) ([]*apimodel.Column, error)
 	GetColumn(boardId *common.Id) (*apimodel.Column, error)
-	Create(newColumn *entity.Column) (*apimodel.Column, error)
-	Update(modifiedColumn *entity.Column) (*apimodel.Column, error)
-	Rename(columnId common.Id, newName string) (*apimodel.Column, error)
-	ChangePosition(columnId common.Id, newPosition int) (*apimodel.Column, error)
-	Delete(storedColumnId common.Id) error
+	Create(newColumn *entity.Column) (*apimodel.Column, error)                    // TODO bulk create
+	Update(modifiedColumn *entity.Column) (*apimodel.Column, error)               // TODO bulk update
+	Rename(columnId common.Id, newName string) (*apimodel.Column, error)          // TODO use the app update logic instead
+	ChangePosition(columnId common.Id, newPosition int) (*apimodel.Column, error) // TODO use the app update logic instead
+	Delete(storedColumnId common.Id) error                                        // TODO bulk delete
 }
 
 // ColumnManagerAppImpl is the implementation of ColumnManagerApp

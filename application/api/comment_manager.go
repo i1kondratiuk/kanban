@@ -12,9 +12,9 @@ import (
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
 type CommentManagerApp interface {
 	GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*apimodel.Comment, error)
-	Create(newComment *entity.Comment) (*apimodel.Comment, error)
-	UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*apimodel.Comment, error)
-	Delete(storedCommentId common.Id) error
+	Create(newComment *entity.Comment) (*apimodel.Comment, error)                                    // TODO bulk create
+	UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*apimodel.Comment, error) // TODO bulk update
+	Delete(storedCommentId common.Id) error                                                          // TODO bulk delete
 }
 
 // CommentManagerAppImpl is the implementation of CommentManagerApp
