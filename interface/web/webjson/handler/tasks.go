@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -16,25 +18,31 @@ type TaskManagerAppHandler struct {
 }
 
 // AddRoutes adds TaskManagerAppHandler routs
-func (h TaskManagerAppHandler) AddRoutes(r *mux.Router) {
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks", h.GetAllTasks).Methods("GET")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks", h.CreateTask).Methods("POST")
+func (h TaskManagerAppHandler) AddRoutes(r *mux.Router) { // TODO get rid of the redundant path prefix for the subresource
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks", h.GetAllTasks).Methods("GET")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks", h.CreateTask).Methods("POST")
 
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}", h.GetTask).Methods("GET")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}", h.UpdateTask).Methods("PUT")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}", h.DeleteTask).Methods("DELETE")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}", h.GetTask).Methods("GET")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}", h.UpdateTask).Methods("PUT")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}", h.DeleteTask).Methods("DELETE")
 
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/priority", h.ChangeTaskPriority).Methods("PUT")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/status", h.ChangeTaskStatus).Methods("PUT")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/name", h.ChangeTaskName).Methods("PUT")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/description", h.ChangeTaskDescription).Methods("PUT")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/priority", h.ChangeTaskPriority).Methods("PUT")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/status", h.ChangeTaskStatus).Methods("PUT")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/name", h.ChangeTaskName).Methods("PUT")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/description", h.ChangeTaskDescription).Methods("PUT")
 }
 
 func (h TaskManagerAppHandler) GetAllTasks(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	var columnId common.Id // TODO Implement
-	storedTasks, err := h.TaskManagerApp.GetAllColumnTasks(columnId)
+	columnId, err := strconv.ParseInt(mux.Vars(r)[columnIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to get tasks; "+err.Error())
+		return
+	}
+
+	storedTasks, err := h.TaskManagerApp.GetAllColumnTasks(common.Id(columnId))
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to get tasks; "+err.Error())
@@ -47,8 +55,14 @@ func (h TaskManagerAppHandler) GetAllTasks(w http.ResponseWriter, r *http.Reques
 func (h TaskManagerAppHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	newTask := &entity.Task{} // TODO Implement
-	newTaskStored, err := h.TaskManagerApp.Create(newTask)
+	var newTask entity.Task
+
+	if err := json.NewDecoder(r.Body).Decode(&newTask); err != nil {
+		respondError(w, http.StatusNotFound, "failed to create the task; "+err.Error())
+		return
+	}
+
+	newTaskStored, err := h.TaskManagerApp.Create(&newTask)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to create the task; "+err.Error())
@@ -61,11 +75,20 @@ func (h TaskManagerAppHandler) CreateTask(w http.ResponseWriter, r *http.Request
 func (h TaskManagerAppHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	var taskId common.Id // TODO Implement
+	params := mux.Vars(r)
+	taskIdInt64, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to get the task; "+err.Error())
+		return
+	}
+
+	taskId := common.Id(taskIdInt64)
+
 	storedTasks, err := h.TaskManagerApp.GeTask(taskId)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to get task; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to get the task; "+err.Error())
 		return
 	}
 
@@ -75,11 +98,27 @@ func (h TaskManagerAppHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 func (h TaskManagerAppHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	modifiedTask := &entity.Task{} // TODO Implement
-	updatedTasks, err := h.TaskManagerApp.Update(modifiedTask)
+	params := mux.Vars(r)
+	modifiedTaskId, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to update task; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to update the task; "+err.Error())
+		return
+	}
+
+	var modifiedTask entity.Task
+
+	if err := json.NewDecoder(r.Body).Decode(&modifiedTask); err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task; "+err.Error())
+		return
+	}
+
+	modifiedTask.Id = common.Id(modifiedTaskId)
+
+	updatedTasks, err := h.TaskManagerApp.Update(&modifiedTask)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task; "+err.Error())
 		return
 	}
 
@@ -89,10 +128,16 @@ func (h TaskManagerAppHandler) UpdateTask(w http.ResponseWriter, r *http.Request
 func (h TaskManagerAppHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	var taskId common.Id // TODO Implement
+	params := mux.Vars(r)
+	taskId, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
 
-	if err := h.TaskManagerApp.DeleteWithAllComments(taskId); err != nil {
-		respondError(w, http.StatusNotFound, "failed to delete task; "+err.Error())
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to delete the task; "+err.Error())
+		return
+	}
+
+	if err := h.TaskManagerApp.DeleteWithAllComments(common.Id(taskId)); err != nil {
+		respondError(w, http.StatusNotFound, "failed to delete the task; "+err.Error())
 		return
 	}
 
@@ -102,12 +147,27 @@ func (h TaskManagerAppHandler) DeleteTask(w http.ResponseWriter, r *http.Request
 func (h TaskManagerAppHandler) ChangeTaskPriority(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	var taskId common.Id // TODO Implement
-	var newPriority int  // TODO Implement
+	params := mux.Vars(r)
+	taskIdInt64, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task priority; "+err.Error())
+		return
+	}
+
+	var newPriority int
+
+	if err := json.NewDecoder(r.Body).Decode(&newPriority); err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task priority; "+err.Error())
+		return
+	}
+
+	taskId := common.Id(taskIdInt64)
+
 	updatedTask, err := h.TaskManagerApp.Prioritize(taskId, newPriority)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to update task; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to update the task priority; "+err.Error())
 		return
 	}
 
@@ -117,12 +177,35 @@ func (h TaskManagerAppHandler) ChangeTaskPriority(w http.ResponseWriter, r *http
 func (h TaskManagerAppHandler) ChangeTaskStatus(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	var taskId common.Id   // TODO Implement
-	var columnId common.Id // TODO Implement
+	params := mux.Vars(r)
+	taskIdInt64, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task status; "+err.Error())
+		return
+	}
+
+	var columnIdStr string
+
+	if err := json.NewDecoder(r.Body).Decode(&columnIdStr); err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task priority; "+err.Error())
+		return
+	}
+
+	columnIdInt64, err := strconv.ParseInt(columnIdStr, 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task status; "+err.Error())
+		return
+	}
+
+	columnId := common.Id(columnIdInt64)
+	taskId := common.Id(taskIdInt64)
+
 	updatedTask, err := h.TaskManagerApp.ChangeStatus(taskId, columnId)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to update tasks; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to update the task status; "+err.Error())
 		return
 	}
 
@@ -132,12 +215,27 @@ func (h TaskManagerAppHandler) ChangeTaskStatus(w http.ResponseWriter, r *http.R
 func (h TaskManagerAppHandler) ChangeTaskName(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	var taskId common.Id // TODO Implement
-	var newName string   // TODO Implement
+	params := mux.Vars(r)
+	taskIdInt64, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task; "+err.Error())
+		return
+	}
+
+	var newName string
+
+	if err := json.NewDecoder(r.Body).Decode(&newName); err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task priority; "+err.Error())
+		return
+	}
+
+	taskId := common.Id(taskIdInt64)
+
 	updatedTask, err := h.TaskManagerApp.ChangeName(taskId, newName)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to update task; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to update the task name; "+err.Error())
 		return
 	}
 
@@ -147,12 +245,27 @@ func (h TaskManagerAppHandler) ChangeTaskName(w http.ResponseWriter, r *http.Req
 func (h TaskManagerAppHandler) ChangeTaskDescription(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
-	var taskId common.Id      // TODO Implement
-	var newDescription string // TODO Implement
-	updatedTask, err := h.TaskManagerApp.ChangeName(taskId, newDescription)
+	params := mux.Vars(r)
+	taskIdInt64, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to update task; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to update the task description; "+err.Error())
+		return
+	}
+
+	var newDescription string
+
+	if err := json.NewDecoder(r.Body).Decode(&newDescription); err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task description; "+err.Error())
+		return
+	}
+
+	taskId := common.Id(taskIdInt64)
+
+	updatedTask, err := h.TaskManagerApp.ChangeDescription(taskId, newDescription)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the task description; "+err.Error())
 		return
 	}
 

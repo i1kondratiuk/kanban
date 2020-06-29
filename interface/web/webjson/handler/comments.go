@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -17,18 +19,27 @@ type CommentManagerAppHandler struct {
 }
 
 // AddRoutes adds CommentManagerAppHandler routs
-func (h CommentManagerAppHandler) AddRoutes(r *mux.Router) {
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/comments", h.GetAllComments).Methods("GET")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/comments", h.CreateComment).Methods("POST")
+func (h CommentManagerAppHandler) AddRoutes(r *mux.Router) { // TODO get rid of the redundant path prefix for the subresource
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments", h.GetAllComments).Methods("GET")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments", h.CreateComment).Methods("POST")
 
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/comments/{taskId}", h.UpdateComment).Methods("PUT")
-	r.HandleFunc("/boards/{boardId}/columns/{columnId}/tasks/{taskId}/comments/{taskId}", h.DeleteComment).Methods("DELETE")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments/{"+commentIdAnchor+"}", h.UpdateComment).Methods("PUT")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments/{"+commentIdAnchor+"}", h.DeleteComment).Methods("DELETE")
 }
 
 func (h CommentManagerAppHandler) GetAllComments(w http.ResponseWriter, r *http.Request) {
 	h.CommentManagerApp = api.GetCommentManagerApp()
 
-	var taskId common.Id // TODO Implement
+	params := mux.Vars(r)
+	taskIdInt64, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to get comments; "+err.Error())
+		return
+	}
+
+	taskId := common.Id(taskIdInt64)
+
 	storedComments, err := h.CommentManagerApp.GetAllParentCommentsGroupedByCreatedDateTime(taskId)
 
 	if err != nil {
@@ -42,8 +53,14 @@ func (h CommentManagerAppHandler) GetAllComments(w http.ResponseWriter, r *http.
 func (h CommentManagerAppHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	h.CommentManagerApp = api.GetCommentManagerApp()
 
-	newComment := &entity.Comment{} // TODO Implement
-	newCommentStored, err := h.CommentManagerApp.Create(newComment)
+	var newComment entity.Comment
+
+	if err := json.NewDecoder(r.Body).Decode(&newComment); err != nil {
+		respondError(w, http.StatusNotFound, "failed to create the column; "+err.Error())
+		return
+	}
+
+	newCommentStored, err := h.CommentManagerApp.Create(&newComment)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to get comments; "+err.Error())
@@ -56,12 +73,27 @@ func (h CommentManagerAppHandler) CreateComment(w http.ResponseWriter, r *http.R
 func (h CommentManagerAppHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 	h.CommentManagerApp = api.GetCommentManagerApp()
 
-	var commentId common.Id     // TODO Implement
-	var bodyText value.BodyText // TODO Implement
+	params := mux.Vars(r)
+	commentIdInt64, err := strconv.ParseInt(params[commentIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the column; "+err.Error())
+		return
+	}
+
+	var bodyText value.BodyText
+
+	if err := json.NewDecoder(r.Body).Decode(&bodyText); err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the column; "+err.Error())
+		return
+	}
+
+	commentId := common.Id(commentIdInt64)
+
 	newCommentStored, err := h.CommentManagerApp.UpdateBodyText(commentId, bodyText)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to get comments; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to update the column; "+err.Error())
 		return
 	}
 
@@ -71,10 +103,16 @@ func (h CommentManagerAppHandler) UpdateComment(w http.ResponseWriter, r *http.R
 func (h CommentManagerAppHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	h.CommentManagerApp = api.GetCommentManagerApp()
 
-	var storedCommentId common.Id // TODO Implement
+	params := mux.Vars(r)
+	commentId, err := strconv.ParseInt(params[commentIdAnchor], 10, 64)
 
-	if err := h.CommentManagerApp.Delete(storedCommentId); err != nil {
-		respondError(w, http.StatusNotFound, "failed to get comments; "+err.Error())
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to delete the task; "+err.Error())
+		return
+	}
+
+	if err := h.CommentManagerApp.Delete(common.Id(commentId)); err != nil {
+		respondError(w, http.StatusNotFound, "failed to delete the task; "+err.Error())
 		return
 	}
 

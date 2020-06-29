@@ -40,6 +40,6 @@ func NewBoardFromAggregate(ba *aggregate.BoardAggregate) *apimodel.Board {
 		Id:          ba.BoardAggregateRoot.Id,
 		Name:        ba.BoardAggregateRoot.Name,
 		Description: ba.BoardAggregateRoot.Description,
-		Columns:     NewColumns(ba.ColumnAggregates),
+		Columns:     NewColumnsFromAggregates(ba.ColumnAggregates),
 	}
 }

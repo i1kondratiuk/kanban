@@ -8,6 +8,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	boardIdAnchor   = "boardId"
+	columnIdAnchor  = "columnId"
+	taskIdAnchor    = "taskId"
+	commentIdAnchor = "commentId"
+)
+
 // Run starts server
 func Run(port int) {
 	log.Printf("Server running at http://localhost:%d/", port)

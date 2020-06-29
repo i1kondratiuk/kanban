@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -20,9 +22,9 @@ func (h BoardManagerAppHandler) AddRoutes(r *mux.Router) {
 	r.HandleFunc("/boards", h.getAllBoards).Methods("GET")
 	r.HandleFunc("/boards", h.CreateBoard).Methods("POST")
 
-	r.HandleFunc("/boards/{boardId}", h.getBoard).Methods("GET")
-	r.HandleFunc("/boards/{boardId}", h.updateBoard).Methods("PUT")
-	r.HandleFunc("/boards/{boardId}", h.deleteBoard).Methods("DELETE")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}", h.getBoard).Methods("GET")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}", h.updateBoard).Methods("PUT")
+	r.HandleFunc("/boards/{"+boardIdAnchor+"}", h.deleteBoard).Methods("DELETE")
 }
 
 func (h BoardManagerAppHandler) getAllBoards(w http.ResponseWriter, r *http.Request) {
@@ -41,8 +43,14 @@ func (h BoardManagerAppHandler) getAllBoards(w http.ResponseWriter, r *http.Requ
 func (h BoardManagerAppHandler) CreateBoard(w http.ResponseWriter, r *http.Request) {
 	h.BoardManagerApp = api.GetBoardManagerApp()
 
-	newBoard := &entity.Board{} // TODO Implement
-	newBoardStored, err := h.BoardManagerApp.Create(newBoard)
+	var newBoard entity.Board
+
+	if err := json.NewDecoder(r.Body).Decode(&newBoard); err != nil {
+		respondError(w, http.StatusNotFound, "failed to create the board; "+err.Error())
+		return
+	}
+
+	newBoardStored, err := h.BoardManagerApp.Create(&newBoard)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to create the board; "+err.Error())
@@ -55,8 +63,15 @@ func (h BoardManagerAppHandler) CreateBoard(w http.ResponseWriter, r *http.Reque
 func (h BoardManagerAppHandler) getBoard(w http.ResponseWriter, r *http.Request) {
 	h.BoardManagerApp = api.GetBoardManagerApp()
 
-	var boardId common.Id // TODO implement
-	retrievedBoard, err := h.BoardManagerApp.Get(boardId)
+	params := mux.Vars(r)
+	boardId, err := strconv.ParseInt(params[boardIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to get the board; "+err.Error())
+		return
+	}
+
+	retrievedBoard, err := h.BoardManagerApp.Get(common.Id(boardId))
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to get the board; "+err.Error())
@@ -69,8 +84,23 @@ func (h BoardManagerAppHandler) getBoard(w http.ResponseWriter, r *http.Request)
 func (h BoardManagerAppHandler) updateBoard(w http.ResponseWriter, r *http.Request) {
 	h.BoardManagerApp = api.GetBoardManagerApp()
 
-	modifiedBoard := &entity.Board{} // TODO implement
-	updatedBoard, err := h.BoardManagerApp.Create(modifiedBoard)
+	params := mux.Vars(r)
+	modifiedBoardId, err := strconv.ParseInt(params[boardIdAnchor], 10, 64)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the board; "+err.Error())
+		return
+	}
+
+	var modifiedBoard entity.Board
+
+	if err := json.NewDecoder(r.Body).Decode(&modifiedBoard); err != nil {
+		respondError(w, http.StatusNotFound, "failed to update the board; "+err.Error())
+		return
+	}
+
+	modifiedBoard.Id = common.Id(modifiedBoardId)
+	updatedBoard, err := h.BoardManagerApp.Update(&modifiedBoard)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the board; "+err.Error())
@@ -83,10 +113,15 @@ func (h BoardManagerAppHandler) updateBoard(w http.ResponseWriter, r *http.Reque
 func (h BoardManagerAppHandler) deleteBoard(w http.ResponseWriter, r *http.Request) {
 	h.BoardManagerApp = api.GetBoardManagerApp()
 
-	var boardId common.Id // TODO implement
+	boardId, err := strconv.ParseInt(mux.Vars(r)[boardIdAnchor], 10, 64)
 
-	if err := h.BoardManagerApp.Delete(boardId); err != nil {
-		respondError(w, http.StatusNotFound, "failed to get the board; "+err.Error())
+	if err != nil {
+		respondError(w, http.StatusNotFound, "failed to delete the board; "+err.Error())
+		return
+	}
+
+	if err := h.BoardManagerApp.Delete(common.Id(boardId)); err != nil {
+		respondError(w, http.StatusNotFound, "failed to delete the board; "+err.Error())
 		return
 	}
 
