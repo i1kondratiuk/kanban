@@ -17,3 +17,4 @@
 # JetBrains IDE
 .idea
 *.iml
+config.yml
