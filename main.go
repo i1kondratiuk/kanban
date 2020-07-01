@@ -37,6 +37,9 @@ func init() {
 	)
 
 	repository.InitBoardRepository(persistence.NewBoardRepository(db))
+	repository.InitColumnRepository(persistence.NewColumnRepository(db))
+	repository.InitTaskRepository(persistence.NewTaskRepository(db))
+	repository.InitCommentRepository(persistence.NewCommentRepository(db))
 
 	if err != nil {
 		panic(err.Error())
