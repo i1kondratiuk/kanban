@@ -41,7 +41,6 @@ func NewColumnFromAggregate(ca *aggregate.ColumnAggregate) *apimodel.Column {
 		tasks[i] = &apimodel.Task{
 			Id:       taskEntity.Id,
 			Name:     taskEntity.Name,
-			Position: taskEntity.Position,
 		}
 	}
 

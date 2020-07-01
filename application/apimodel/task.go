@@ -10,6 +10,5 @@ type Task struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Priority    int        `json:"priority"`
-	Position    int        `json:"position"`
 	Comments    []*Comment `json:"comments,omitempty"`
 }

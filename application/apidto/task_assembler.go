@@ -22,7 +22,6 @@ func NewTaskFromEntity(te *entity.Task) *apimodel.Task {
 		Name:        te.Name,
 		Description: te.Description,
 		Priority:    te.Priority,
-		Position:    te.Position,
 	}
 }
 
@@ -52,7 +51,6 @@ func NewTaskFromAggregate(ta *aggregate.TaskAggregate) *apimodel.Task {
 		Name:        ta.Name,
 		Description: ta.Description,
 		Priority:    ta.Priority,
-		Position:    ta.Position,
 		Comments:    comments,
 	}
 }
