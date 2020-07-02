@@ -24,7 +24,49 @@ func NewBoardRepository(db *sql.DB) repository.BoardRepository {
 }
 
 func (b BoardRepositoryImpl) GetAllSortedByNameAsc() ([]*entity.Board, error) {
-	return nil, errors.New("GetAllSortedByNameAsc: implement me")
+	if b.db == nil {
+		return nil, errors.New("database error")
+	}
+
+	rows, err := b.db.Query("SELECT id, name, description FROM boards")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	boards := make([]*entity.Board, 0)
+	for rows.Next() {
+		board := entity.Board{}
+
+		var (
+			name        sql.NullString
+			description sql.NullString
+		)
+
+		err = rows.Scan(
+			&board.Id,
+			&name,
+			&description,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if name.Valid {
+			board.Name = name.String
+		}
+
+		if description.Valid {
+			board.Description = description.String
+		}
+
+		boards = append(boards, &board)
+	}
+
+	return boards, nil
 }
 
 func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate, error) {
