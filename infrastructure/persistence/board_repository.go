@@ -70,7 +70,68 @@ func (b BoardRepositoryImpl) GetAllSortedByNameAsc() ([]*entity.Board, error) {
 }
 
 func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate, error) {
-	return nil, errors.New("GetBy: implement me")
+	if b.db == nil {
+		return nil, errors.New("database error")
+	}
+
+	rows, err := b.db.Query("SELECT b.id, b.name, b.description, c.id, c.board_id, c.name, c.position FROM boards b LEFT JOIN columns c ON c.board_id = b.id WHERE b.id = $1", boardId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	board := aggregate.BoardAggregate{
+		BoardAggregateRoot: &entity.Board{},
+		ColumnAggregates:   make([]*aggregate.ColumnAggregate, 0),
+	}
+	for rows.Next() {
+		var (
+			boardName        sql.NullString
+			boardDescription sql.NullString
+			columnName       sql.NullString
+			columnPosition   sql.NullInt32
+		)
+		column := aggregate.ColumnAggregate{
+			ColumnAggregateRoot: &entity.Column{
+				Board: *board.BoardAggregateRoot,
+			},
+		}
+		err = rows.Scan(
+			&board.BoardAggregateRoot.Id,
+			&boardName,
+			&boardDescription,
+			&column.ColumnAggregateRoot.Id,
+			&column.ColumnAggregateRoot.Board.Id,
+			&columnName,
+			&columnPosition,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if boardName.Valid {
+			board.BoardAggregateRoot.Name = boardName.String
+		}
+
+		if boardDescription.Valid {
+			board.BoardAggregateRoot.Description = boardDescription.String
+		}
+
+		if columnName.Valid {
+			column.ColumnAggregateRoot.Name = columnName.String
+		}
+
+		if columnPosition.Valid {
+			column.ColumnAggregateRoot.Position = int(columnPosition.Int32)
+		}
+
+		board.ColumnAggregates = append(board.ColumnAggregates, &column)
+	}
+
+	return &board, nil
 }
 
 func (b BoardRepositoryImpl) Insert(newBoard *entity.Board) (*entity.Board, error) {
