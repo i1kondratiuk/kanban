@@ -6,7 +6,7 @@ import (
 )
 
 func NewComments(ces []*entity.Comment) []*apimodel.Comment {
-	var cms = make([]*apimodel.Comment, len(ces)-1)
+	var cms = make([]*apimodel.Comment, len(ces))
 
 	for i, ce := range ces {
 		cms[i] = NewComment(ce)

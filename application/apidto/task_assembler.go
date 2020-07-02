@@ -7,7 +7,7 @@ import (
 )
 
 func NewTasksFromEntities(tes []*entity.Task) []*apimodel.Task {
-	var ts = make([]*apimodel.Task, len(tes)-1)
+	var ts = make([]*apimodel.Task, len(tes))
 
 	for i, te := range tes {
 		ts[i] = NewTaskFromEntity(te)
@@ -26,7 +26,7 @@ func NewTaskFromEntity(te *entity.Task) *apimodel.Task {
 }
 
 func NewTasksFromAggregates(tas []*aggregate.TaskAggregate) []*apimodel.Task {
-	var ts = make([]*apimodel.Task, len(tas)-1)
+	var ts = make([]*apimodel.Task, len(tas))
 
 	for i, ta := range tas {
 		ts[i] = NewTaskFromAggregate(ta)
@@ -37,7 +37,7 @@ func NewTasksFromAggregates(tas []*aggregate.TaskAggregate) []*apimodel.Task {
 
 func NewTaskFromAggregate(ta *aggregate.TaskAggregate) *apimodel.Task {
 
-	var comments = make([]*apimodel.Comment, len(ta.Comments)-1)
+	var comments = make([]*apimodel.Comment, len(ta.Comments))
 	for i, comment := range ta.Comments {
 		comments[i] = &apimodel.Comment{
 			Id:              comment.Id,

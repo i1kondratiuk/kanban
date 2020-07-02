@@ -6,7 +6,6 @@ import (
 	"github.com/i1kondratiuk/kanban/domain/entity"
 )
 
-
 func NewBoardFromEntity(be *entity.Board) *apimodel.Board {
 	return &apimodel.Board{
 		Id:          be.Id,
@@ -16,7 +15,7 @@ func NewBoardFromEntity(be *entity.Board) *apimodel.Board {
 }
 
 func NewBoardsFromEntity(bes []*entity.Board) []*apimodel.Board {
-	var bms = make([]*apimodel.Board, len(bes)-1)
+	var bms = make([]*apimodel.Board, len(bes))
 
 	for i, be := range bes {
 		bms[i] = NewBoardFromEntity(be)
@@ -26,7 +25,7 @@ func NewBoardsFromEntity(bes []*entity.Board) []*apimodel.Board {
 }
 
 func NewBoardsFromAggregate(bas []*aggregate.BoardAggregate) []*apimodel.Board {
-	var bms = make([]*apimodel.Board, len(bas)-1)
+	var bms = make([]*apimodel.Board, len(bas))
 
 	for i, ba := range bas {
 		bms[i] = NewBoardFromAggregate(ba)

@@ -7,7 +7,7 @@ import (
 )
 
 func NewColumnsFromEntities(ces []*entity.Column) []*apimodel.Column {
-	var cms = make([]*apimodel.Column, len(ces)-1)
+	var cms = make([]*apimodel.Column, len(ces))
 
 	for i, ce := range ces {
 		cms[i] = NewColumnFromEntity(ce)
@@ -25,7 +25,7 @@ func NewColumnFromEntity(ce *entity.Column) *apimodel.Column {
 }
 
 func NewColumnsFromAggregates(cas []*aggregate.ColumnAggregate) []*apimodel.Column {
-	var cs = make([]*apimodel.Column, len(cas)-1)
+	var cs = make([]*apimodel.Column, len(cas))
 
 	for i, ca := range cas {
 		cs[i] = NewColumnFromAggregate(ca)
@@ -36,11 +36,11 @@ func NewColumnsFromAggregates(cas []*aggregate.ColumnAggregate) []*apimodel.Colu
 
 func NewColumnFromAggregate(ca *aggregate.ColumnAggregate) *apimodel.Column {
 
-	var tasks = make([]*apimodel.Task, len(ca.TaskEntities)-1)
+	var tasks = make([]*apimodel.Task, len(ca.TaskEntities))
 	for i, taskEntity := range tasks {
 		tasks[i] = &apimodel.Task{
-			Id:       taskEntity.Id,
-			Name:     taskEntity.Name,
+			Id:   taskEntity.Id,
+			Name: taskEntity.Name,
 		}
 	}
 
