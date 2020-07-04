@@ -20,14 +20,14 @@ type ColumnManagerAppHandler struct {
 // AddRoutes adds ColumnManagerAppHandler routs
 func (h ColumnManagerAppHandler) AddRoutes(r *mux.Router) { // TODO get rid of the redundant path prefix for the subresource
 	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns", h.GetAllBoardColumns).Methods("GET")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns", h.CreateBoardColumn).Methods("POST")
+	r.HandleFunc("/columns", h.CreateBoardColumn).Methods("POST")
 
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}", h.GetColumn).Methods("GET")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}", h.UpdateColumn).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}", h.DeleteColumn).Methods("DELETE")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}", h.GetColumn).Methods("GET")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}", h.UpdateColumn).Methods("PUT")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}", h.DeleteColumn).Methods("DELETE")
 
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/name", h.UpdateColumnName).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/position", h.UpdateColumnPosition).Methods("PUT")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}/name", h.UpdateColumnName).Methods("PUT")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}/position", h.UpdateColumnPosition).Methods("PUT")
 }
 
 func (h ColumnManagerAppHandler) GetAllBoardColumns(w http.ResponseWriter, r *http.Request) {

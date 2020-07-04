@@ -20,11 +20,11 @@ type CommentManagerAppHandler struct {
 
 // AddRoutes adds CommentManagerAppHandler routs
 func (h CommentManagerAppHandler) AddRoutes(r *mux.Router) { // TODO get rid of the redundant path prefix for the subresource
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments", h.GetAllComments).Methods("GET")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments", h.CreateComment).Methods("POST")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}/comments", h.GetAllComments).Methods("GET")
+	r.HandleFunc("/comments", h.CreateComment).Methods("POST")
 
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments/{"+commentIdAnchor+"}", h.UpdateComment).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/comments/{"+commentIdAnchor+"}", h.DeleteComment).Methods("DELETE")
+	r.HandleFunc("/comments/{"+commentIdAnchor+"}", h.UpdateComment).Methods("PUT")
+	r.HandleFunc("/comments/{"+commentIdAnchor+"}", h.DeleteComment).Methods("DELETE")
 }
 
 func (h CommentManagerAppHandler) GetAllComments(w http.ResponseWriter, r *http.Request) {
