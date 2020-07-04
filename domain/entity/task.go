@@ -5,7 +5,6 @@ import "github.com/i1kondratiuk/kanban/domain/entity/common"
 // Task represents the task entity stored in repository
 type Task struct {
 	Id              common.Id
-	CreatedDateTime common.CreatedDateTime
 	Column          Column
 	Name            string
 	Description     string

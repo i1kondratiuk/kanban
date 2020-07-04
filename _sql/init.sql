@@ -80,10 +80,10 @@ ALTER TABLE public.tasks
 
 CREATE TABLE public.comments
 (
-    id         bigint                                               NOT NULL,
-    created_at time with time zone                                  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id         bigint                                               NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
     parent_id  bigint                                               NOT NULL,
     body       character varying(5000) COLLATE pg_catalog."default" NOT NULL,
+    created_at timestamp with time zone                             NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT comment_pkey PRIMARY KEY (id)
 )
     TABLESPACE pg_default;
