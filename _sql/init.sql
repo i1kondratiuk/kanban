@@ -88,5 +88,5 @@ CREATE TABLE public.comments
 )
     TABLESPACE pg_default;
 
-ALTER TABLE public.comment
+ALTER TABLE public.comments
     OWNER to admin;
