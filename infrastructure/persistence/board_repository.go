@@ -28,7 +28,7 @@ func (b BoardRepositoryImpl) GetAllSortedByNameAsc() ([]*entity.Board, error) {
 		return nil, errors.New("database error")
 	}
 
-	rows, err := b.db.Query("SELECT id, name, description FROM boards")
+	rows, err := b.db.Query(`SELECT id, name, description FROM boards`)
 
 	if err != nil {
 		return nil, err
@@ -74,8 +74,16 @@ func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate
 		return nil, errors.New("database error")
 	}
 
-	rows, err := b.db.Query(
-		"SELECT b.id, b.name, b.description, c.id, c.name, c.position FROM boards b LEFT JOIN columns c ON c.board_id = b.id WHERE b.id = $1",
+	rows, err := b.db.Query(`
+		SELECT
+		       b.id,
+		       b.name,
+		       b.description,
+		       c.id,
+		       c.name,
+		       c.position
+		FROM boards b LEFT JOIN columns c ON c.board_id = b.id
+		WHERE b.id = $1`,
 		boardId,
 	)
 
@@ -147,7 +155,7 @@ func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate
 func (b BoardRepositoryImpl) Insert(newBoard *entity.Board) (*entity.Board, error) {
 	var boardId int64
 	if err := b.db.QueryRow(
-		"INSERT INTO boards (name, description) VALUES ($1, $2) RETURNING id",
+		`INSERT INTO boards (name, description) VALUES ($1, $2) RETURNING id`,
 		newBoard.Name,
 		newBoard.Description,
 	).Scan(&boardId); err != nil {
@@ -161,11 +169,12 @@ func (b BoardRepositoryImpl) Insert(newBoard *entity.Board) (*entity.Board, erro
 
 func (b BoardRepositoryImpl) Update(modifiedBoard *entity.Board) (*entity.Board, error) {
 	_, err := b.db.Exec(
-		"UPDATE boards SET name = $1, description = $3 WHERE id = $3",
+		`UPDATE boards SET name = $1, description = $3 WHERE id = $3`,
 		modifiedBoard.Name,
 		modifiedBoard.Description,
 		modifiedBoard.Id,
 	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +183,7 @@ func (b BoardRepositoryImpl) Update(modifiedBoard *entity.Board) (*entity.Board,
 }
 
 func (b BoardRepositoryImpl) Delete(storedBoardId common.Id) error {
-	res, err := b.db.Exec("DELETE FROM boards WHERE id = $1", storedBoardId)
+	res, err := b.db.Exec(`DELETE FROM boards WHERE id = $1`, storedBoardId)
 
 	if err == nil {
 		count, err := res.RowsAffected()
