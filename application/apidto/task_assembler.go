@@ -50,10 +50,10 @@ func NewTaskFromAggregate(ta *aggregate.TaskAggregate) *apimodel.Task {
 	}
 
 	return &apimodel.Task{
-		Id:          ta.Id,
-		Name:        ta.Name,
-		Description: ta.Description,
-		Priority:    ta.Priority,
+		Id:          ta.TaskAggregateRoot.Id,
+		Name:        ta.TaskAggregateRoot.Name,
+		Description: ta.TaskAggregateRoot.Description,
+		Priority:    ta.TaskAggregateRoot.Priority,
 		Comments:    comments,
 	}
 }

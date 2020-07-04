@@ -9,7 +9,6 @@ import (
 // TaskRepository represents a storage of all existing tasks
 type TaskRepository interface {
 	GetTaskWithAllCommentsGroupedByCreatedDateTime(taskId common.Id) (*aggregate.TaskAggregate, error)
-	GetBy(taskId common.Id) (*entity.Task, error)
 	GetAllBy(parentColumnId common.Id) ([]*entity.Task, error)
 	Insert(newTask *entity.Task) (*entity.Task, error)
 	Update(modifiedTask *entity.Task) (*entity.Task, error)
