@@ -82,7 +82,7 @@ func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate
 		       c.id,
 		       c.name,
 		       c.position
-		FROM boards b LEFT JOIN columns c ON c.board_id = b.id
+		FROM boards b LEFT JOIN columns c ON b.id = c.board_id
 		WHERE b.id = $1`,
 		boardId,
 	)

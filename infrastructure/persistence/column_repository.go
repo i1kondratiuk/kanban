@@ -3,6 +3,7 @@ package persistence
 import (
 	"database/sql"
 	"errors"
+	"strconv"
 
 	"github.com/i1kondratiuk/kanban/domain/aggregate"
 	"github.com/i1kondratiuk/kanban/domain/entity"
@@ -164,6 +165,10 @@ func (c ColumnRepositoryImpl) GetBy(columnId common.Id) (*entity.Column, error) 
 	)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			err = errors.New("there is no record with id " + strconv.Itoa(int(columnId)))
+		}
+
 		return nil, err
 	}
 
