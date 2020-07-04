@@ -15,20 +15,20 @@ func NewBoardFromEntity(be *entity.Board) *apimodel.Board {
 }
 
 func NewBoardsFromEntity(bes []*entity.Board) []*apimodel.Board {
-	var bms = make([]*apimodel.Board, len(bes))
+	var bms = make([]*apimodel.Board, 0, len(bes))
 
-	for i, be := range bes {
-		bms[i] = NewBoardFromEntity(be)
+	for _, be := range bes {
+		bms = append(bms, NewBoardFromEntity(be))
 	}
 
 	return bms
 }
 
 func NewBoardsFromAggregate(bas []*aggregate.BoardAggregate) []*apimodel.Board {
-	var bms = make([]*apimodel.Board, len(bas))
+	var bms = make([]*apimodel.Board, 0, len(bas))
 
-	for i, ba := range bas {
-		bms[i] = NewBoardFromAggregate(ba)
+	for _, ba := range bas {
+		bms = append(bms, NewBoardFromAggregate(ba))
 	}
 
 	return bms
