@@ -75,7 +75,7 @@ func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate
 	}
 
 	rows, err := b.db.Query(
-		"SELECT b.id, b.name, b.description, c.id, c.board_id, c.name, c.position FROM boards b LEFT JOIN columns c ON c.board_id = b.id WHERE b.id = $1",
+		"SELECT b.id, b.name, b.description, c.id, c.name, c.position FROM boards b LEFT JOIN columns c ON c.board_id = b.id WHERE b.id = $1",
 		boardId,
 	)
 
@@ -89,24 +89,21 @@ func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate
 		BoardAggregateRoot: &entity.Board{},
 		ColumnAggregates:   make([]*aggregate.ColumnAggregate, 0),
 	}
+
 	for rows.Next() {
 		var (
 			boardName        sql.NullString
 			boardDescription sql.NullString
+			columnId         sql.NullInt64
 			columnName       sql.NullString
 			columnPosition   sql.NullInt32
 		)
-		column := aggregate.ColumnAggregate{
-			ColumnAggregateRoot: &entity.Column{
-				Board: *board.BoardAggregateRoot,
-			},
-		}
+
 		err = rows.Scan(
 			&board.BoardAggregateRoot.Id,
 			&boardName,
 			&boardDescription,
-			&column.ColumnAggregateRoot.Id,
-			&column.ColumnAggregateRoot.Board.Id,
+			&columnId,
 			&columnName,
 			&columnPosition,
 		)
@@ -123,28 +120,41 @@ func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate
 			board.BoardAggregateRoot.Description = boardDescription.String
 		}
 
-		if columnName.Valid {
-			column.ColumnAggregateRoot.Name = columnName.String
-		}
+		if columnId.Valid {
+			column := aggregate.ColumnAggregate{
+				ColumnAggregateRoot: &entity.Column{
+					Board: *board.BoardAggregateRoot,
+				},
+			}
 
-		if columnPosition.Valid {
-			column.ColumnAggregateRoot.Position = int(columnPosition.Int32)
-		}
+			column.ColumnAggregateRoot.Id = common.Id(columnId.Int64)
 
-		board.ColumnAggregates = append(board.ColumnAggregates, &column)
+			if columnName.Valid {
+				column.ColumnAggregateRoot.Name = columnName.String
+			}
+
+			if columnPosition.Valid {
+				column.ColumnAggregateRoot.Position = int(columnPosition.Int32)
+			}
+
+			board.ColumnAggregates = append(board.ColumnAggregates, &column)
+		}
 	}
 
 	return &board, nil
 }
 
 func (b BoardRepositoryImpl) Insert(newBoard *entity.Board) (*entity.Board, error) {
+	var boardId int64
 	if err := b.db.QueryRow(
-		"INSERT INTO boards (name, description) VALUES ($1, $2)",
+		"INSERT INTO boards (name, description) VALUES ($1, $2) RETURNING id",
 		newBoard.Name,
 		newBoard.Description,
-	).Scan(&newBoard.Id); err != nil {
+	).Scan(&boardId); err != nil {
 		return nil, err
 	}
+
+	newBoard.Id = common.Id(boardId)
 
 	return newBoard, nil
 }
@@ -164,9 +174,15 @@ func (b BoardRepositoryImpl) Update(modifiedBoard *entity.Board) (*entity.Board,
 }
 
 func (b BoardRepositoryImpl) Delete(storedBoardId common.Id) error {
-	_, err := b.db.Exec("DELETE FROM boards WHERE id = $1", storedBoardId)
-	if err != nil {
-		return err
+	res, err := b.db.Exec("DELETE FROM boards WHERE id = $1", storedBoardId)
+
+	if err == nil {
+		count, err := res.RowsAffected()
+		if err != nil {
+			return err
+		} else if count != 1 {
+			return errors.New("the record cannot be found, thus it is not deleted")
+		}
 	}
 
 	return nil
