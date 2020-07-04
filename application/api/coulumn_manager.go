@@ -42,7 +42,7 @@ func (a *ColumnManagerAppImpl) GetAllColumnsWithRelatedTasks(boardId *common.Id)
 	storedColumnsWithRelatedTasks, err := repository.GetColumnRepository().GetAllWithRelatedTasksBy(*boardId)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return apidto.NewColumnsFromAggregates(storedColumnsWithRelatedTasks), nil
@@ -52,7 +52,7 @@ func (a *ColumnManagerAppImpl) GetColumn(columnId *common.Id) (*apimodel.Column,
 	storedColumn, err := repository.GetColumnRepository().GetBy(*columnId)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	return apidto.NewColumnFromEntity(storedColumn), nil
