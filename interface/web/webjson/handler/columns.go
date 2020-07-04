@@ -145,14 +145,14 @@ func (h ColumnManagerAppHandler) UpdateColumnName(w http.ResponseWriter, r *http
 
 	columnId := common.Id(columnIdInt64)
 
-	updatedColumn, err := h.ColumnManagerApp.Rename(columnId, newName)
+	err = h.ColumnManagerApp.Rename(columnId, newName)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the column name; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedColumn)
+	respondJSON(w, http.StatusOK, "the column was renamed successfully")
 }
 
 func (h ColumnManagerAppHandler) UpdateColumnPosition(w http.ResponseWriter, r *http.Request) {
@@ -175,14 +175,14 @@ func (h ColumnManagerAppHandler) UpdateColumnPosition(w http.ResponseWriter, r *
 
 	columnId := common.Id(columnIdUntyped)
 
-	updatedColumn, err := h.ColumnManagerApp.ChangePosition(columnId, newPosition)
+	err = h.ColumnManagerApp.ChangePosition(columnId, newPosition)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the column position; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedColumn)
+	respondJSON(w, http.StatusOK, "the column was repositioned successfully")
 }
 
 func (h ColumnManagerAppHandler) DeleteColumn(w http.ResponseWriter, r *http.Request) {
