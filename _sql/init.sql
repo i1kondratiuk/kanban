@@ -74,11 +74,11 @@ ALTER TABLE public.tasks
     OWNER to admin;
 
 
--- Table: public.comment
+-- Table: public.comments
 
--- DROP TABLE public.comment;
+-- DROP TABLE public.comments;
 
-CREATE TABLE public.comment
+CREATE TABLE public.comments
 (
     id         bigint                                               NOT NULL,
     created_at time with time zone                                  NOT NULL DEFAULT CURRENT_TIMESTAMP,
