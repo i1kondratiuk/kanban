@@ -37,8 +37,8 @@ var _ ColumnService = &ColumnServiceImpl{}
 // Creates default Column with parent Board assigned
 func (s *ColumnServiceImpl) CreateDefaultColumn(parentBoardId common.Id) *entity.Column {
 	return &entity.Column{
-		Board: entity.Board{Id: parentBoardId},
-		Name:  defaultColumnName,
+		BoardId: parentBoardId,
+		Name:    defaultColumnName,
 	}
 }
 

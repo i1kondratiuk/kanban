@@ -164,14 +164,12 @@ func (h TaskManagerAppHandler) ChangeTaskPriority(w http.ResponseWriter, r *http
 
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.Prioritize(taskId, newPriority)
-
-	if err != nil {
+	if err = h.TaskManagerApp.Prioritize(taskId, newPriority); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task priority; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task priority was updates successfully")
 }
 
 func (h TaskManagerAppHandler) ChangeTaskStatus(w http.ResponseWriter, r *http.Request) {
@@ -202,14 +200,12 @@ func (h TaskManagerAppHandler) ChangeTaskStatus(w http.ResponseWriter, r *http.R
 	columnId := common.Id(columnIdInt64)
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.ChangeStatus(taskId, columnId)
-
-	if err != nil {
+	if err = h.TaskManagerApp.ChangeStatus(taskId, columnId); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task status; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task status was updates successfully")
 }
 
 func (h TaskManagerAppHandler) ChangeTaskName(w http.ResponseWriter, r *http.Request) {
@@ -232,14 +228,12 @@ func (h TaskManagerAppHandler) ChangeTaskName(w http.ResponseWriter, r *http.Req
 
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.ChangeName(taskId, newName)
-
-	if err != nil {
+	if err = h.TaskManagerApp.ChangeName(taskId, newName); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task name; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task name was updates successfully")
 }
 
 func (h TaskManagerAppHandler) ChangeTaskDescription(w http.ResponseWriter, r *http.Request) {
@@ -262,12 +256,10 @@ func (h TaskManagerAppHandler) ChangeTaskDescription(w http.ResponseWriter, r *h
 
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.ChangeDescription(taskId, newDescription)
-
-	if err != nil {
+	if err = h.TaskManagerApp.ChangeDescription(taskId, newDescription); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task description; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task description was updates successfully")
 }

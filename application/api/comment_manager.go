@@ -12,9 +12,9 @@ import (
 // BoardManagerApp represents BoardManagerApp application to be called by interface layer
 type CommentManagerApp interface {
 	GetAllParentCommentsGroupedByCreatedDateTime(parentId common.Id) ([]*apimodel.Comment, error)
-	Create(newComment *entity.Comment) (*apimodel.Comment, error)                                    // TODO bulk create
-	UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*apimodel.Comment, error) // TODO bulk update
-	Delete(storedCommentId common.Id) error                                                          // TODO bulk delete
+	Create(newComment *entity.Comment) (*apimodel.Comment, error)               // TODO bulk create
+	UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) error // TODO bulk update
+	Delete(storedCommentId common.Id) error                                     // TODO bulk delete
 }
 
 // CommentManagerAppImpl is the implementation of CommentManagerApp
@@ -55,14 +55,9 @@ func (c CommentManagerAppImpl) Create(newComment *entity.Comment) (*apimodel.Com
 	return apidto.NewComment(insertedComment), nil
 }
 
-func (c CommentManagerAppImpl) UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (*apimodel.Comment, error) {
-	updatedComment, err := repository.GetCommentRepository().Update(storedCommentId, newBodyText)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return apidto.NewComment(updatedComment), nil
+func (c CommentManagerAppImpl) UpdateBodyText(storedCommentId common.Id, newBodyText value.BodyText) (err error) {
+	err = repository.GetCommentRepository().Update(storedCommentId, newBodyText)
+	return
 }
 
 func (c CommentManagerAppImpl) Delete(storedCommentId common.Id) error {

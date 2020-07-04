@@ -131,7 +131,7 @@ func (b BoardRepositoryImpl) GetBy(boardId common.Id) (*aggregate.BoardAggregate
 		if columnId.Valid {
 			column := aggregate.ColumnAggregate{
 				ColumnAggregateRoot: &entity.Column{
-					Board: *board.BoardAggregateRoot,
+					BoardId: board.BoardAggregateRoot.Id,
 				},
 			}
 

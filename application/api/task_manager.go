@@ -12,13 +12,13 @@ import (
 type TaskManagerApp interface {
 	GetTaskWithAllCommentsGroupedByCreatedDateTime(taskId common.Id) (*apimodel.Task, error)
 	GetTasksBy(parentColumnId common.Id) ([]*apimodel.Task, error)
-	Create(newTask *entity.Task) (*apimodel.Task, error)                                // TODO bulk create
-	Update(modifiedTask *entity.Task) (*apimodel.Task, error)                           // TODO bulk update
-	ChangeDescription(taskId common.Id, newDescription string) (*apimodel.Task, error)  // TODO use the app update logic instead
-	ChangeName(taskId common.Id, newName string) (*apimodel.Task, error)                // TODO use the app update logic instead
-	ChangeStatus(taskId common.Id, newParentColumnId common.Id) (*apimodel.Task, error) // TODO use the app update logic instead
-	Prioritize(taskId common.Id, priority int) (*apimodel.Task, error)                  // TODO use the app update logic instead
-	DeleteWithAllComments(storedTaskId common.Id) error                                 // TODO bulk delete
+	Create(newTask *entity.Task) (*apimodel.Task, error)              // TODO bulk create
+	Update(modifiedTask *entity.Task) (*apimodel.Task, error)         // TODO bulk update
+	ChangeDescription(taskId common.Id, newDescription string) error  // TODO use the app update logic instead
+	ChangeName(taskId common.Id, newName string) error                // TODO use the app update logic instead
+	ChangeStatus(taskId common.Id, newParentColumnId common.Id) error // TODO use the app update logic instead
+	Prioritize(taskId common.Id, priority int) error                  // TODO use the app update logic instead
+	DeleteWithAllComments(storedTaskId common.Id) error               // TODO bulk delete
 }
 
 // TaskManagerAppImpl is the implementation of UsersCounter
@@ -79,65 +79,28 @@ func (a *TaskManagerAppImpl) Update(modifiedTask *entity.Task) (*apimodel.Task, 
 	return apidto.NewTaskFromEntity(updatedTask), nil
 }
 
-func (a *TaskManagerAppImpl) ChangeDescription(taskId common.Id, newDescription string) (*apimodel.Task, error) {
-	updatedTask, err := repository.GetTaskRepository().UpdateDescription(taskId, newDescription)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return apidto.NewTaskFromEntity(updatedTask), nil
+func (a *TaskManagerAppImpl) ChangeDescription(taskId common.Id, newDescription string) (err error) {
+	err = repository.GetTaskRepository().UpdateDescription(taskId, newDescription)
+	return
 }
 
-func (a *TaskManagerAppImpl) ChangeName(taskId common.Id, newName string) (*apimodel.Task, error) {
-	updatedTask, err := repository.GetTaskRepository().UpdateDescription(taskId, newName)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return apidto.NewTaskFromEntity(updatedTask), nil
+func (a *TaskManagerAppImpl) ChangeName(taskId common.Id, newName string) (err error) {
+	err = repository.GetTaskRepository().UpdateDescription(taskId, newName)
+	return
 }
 
-func (a *TaskManagerAppImpl) ChangeStatus(taskId common.Id, newParentColumnId common.Id) (*apimodel.Task, error) {
-	updatedTask, err := repository.GetTaskRepository().UpdateParentColumn(taskId, newParentColumnId)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return apidto.NewTaskFromEntity(updatedTask), nil
+func (a *TaskManagerAppImpl) ChangeStatus(taskId common.Id, newParentColumnId common.Id) (err error) {
+	err = repository.GetTaskRepository().UpdateParentColumn(taskId, newParentColumnId)
+	return
 }
 
-func (a *TaskManagerAppImpl) Prioritize(taskId common.Id, priority int) (*apimodel.Task, error) {
-	prioritisedTask, err := repository.GetTaskRepository().UpdatePriority(taskId, priority)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return apidto.NewTaskFromEntity(prioritisedTask), nil
+func (a *TaskManagerAppImpl) Prioritize(taskId common.Id, priority int) (err error) {
+	err = repository.GetTaskRepository().UpdatePriority(taskId, priority)
+	return
 }
 
-func (a *TaskManagerAppImpl) DeleteWithAllComments(storedTaskId common.Id) error {
-	storedComments, err := repository.GetCommentRepository().GetAllBy(storedTaskId)
-
-	if err != nil {
-		return err
-	}
-
-	storedCommentIds := make([]common.Id, len(storedComments))
-	for i, elem := range storedComments {
-		storedCommentIds[i] = elem.Id
-	}
-
-	if err := repository.GetCommentRepository().DeleteBulk(storedCommentIds); err == nil {
-		return err
-	}
-
-	if err := repository.GetTaskRepository().Delete(storedTaskId); err == nil {
-		return err
-	}
-
-	return nil
+func (a *TaskManagerAppImpl) DeleteWithAllComments(storedTaskId common.Id) (err error) {
+	err = repository.GetCommentRepository().DeleteAllBy(storedTaskId)
+	err = repository.GetTaskRepository().Delete(storedTaskId)
+	return
 }

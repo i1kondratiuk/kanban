@@ -90,14 +90,12 @@ func (h CommentManagerAppHandler) UpdateComment(w http.ResponseWriter, r *http.R
 
 	commentId := common.Id(commentIdInt64)
 
-	newCommentStored, err := h.CommentManagerApp.UpdateBodyText(commentId, bodyText)
-
-	if err != nil {
+	if err := h.CommentManagerApp.UpdateBodyText(commentId, bodyText); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the column; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, newCommentStored)
+	respondJSON(w, http.StatusOK, "the comment was updated successfully")
 }
 
 func (h CommentManagerAppHandler) DeleteComment(w http.ResponseWriter, r *http.Request) {

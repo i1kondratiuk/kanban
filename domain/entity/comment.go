@@ -10,8 +10,8 @@ import (
 // Comment represents a comment
 type Comment struct {
 	Id              common.Id
+	ParentId        common.Id
 	CreatedDateTime time.Time
-	Parent          common.Entity
 	Comment         value.Comment
 }
 

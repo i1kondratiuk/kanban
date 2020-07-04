@@ -87,8 +87,8 @@ func (c ColumnRepositoryImpl) GetAllWithRelatedTasksBy(parentBoardId common.Id) 
 			} else {
 				columnAggregateToPutInMap := aggregate.ColumnAggregate{
 					ColumnAggregateRoot: &entity.Column{
-						Id:    columnId,
-						Board: entity.Board{Id: parentBoardId},
+						Id:      columnId,
+						BoardId: parentBoardId,
 					},
 				}
 
@@ -123,8 +123,8 @@ func (c ColumnRepositoryImpl) GetAllWithRelatedTasksBy(parentBoardId common.Id) 
 
 func createTask(columnId common.Id, taskId sql.NullInt64, taskName sql.NullString, taskDescription sql.NullString, taskPriority sql.NullInt32) *entity.Task {
 	task := entity.Task{
-		Id:     common.Id(int(taskId.Int64)),
-		Column: entity.Column{Id: columnId},
+		Id:       common.Id(int(taskId.Int64)),
+		ColumnId: columnId,
 	}
 
 	if taskName.Valid {

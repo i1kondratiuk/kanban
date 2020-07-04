@@ -161,8 +161,8 @@ func (t TaskRepositoryImpl) GetAllBy(parentColumnId common.Id) ([]*entity.Task, 
 
 		if taskId.Valid {
 			task := &entity.Task{
-				Id:     common.Id(taskId.Int64),
-				Column: entity.Column{Id: parentColumnId},
+				Id:       common.Id(taskId.Int64),
+				ColumnId: parentColumnId,
 			}
 
 			if taskName.Valid {
@@ -185,29 +185,91 @@ func (t TaskRepositoryImpl) GetAllBy(parentColumnId common.Id) ([]*entity.Task, 
 }
 
 func (t TaskRepositoryImpl) Insert(newTask *entity.Task) (*entity.Task, error) {
-	return nil, errors.New("Insert: implement me")
+	var insertedTaskId int64
+
+	if err := t.db.QueryRow(
+		`INSERT INTO tasks (column_id, name, priority, description) VALUES ($1, $2) RETURNING id`,
+		int(newTask.ColumnId),
+		newTask.Name,
+		newTask.Priority,
+		newTask.Description,
+	).Scan(&insertedTaskId); err != nil {
+		return nil, err
+	}
+
+	newTask.Id = common.Id(insertedTaskId)
+
+	return newTask, nil
 }
 
 func (t TaskRepositoryImpl) Update(modifiedTask *entity.Task) (*entity.Task, error) {
-	return nil, errors.New("Update: implement me")
+	_, err := t.db.Exec(
+		`UPDATE tasks SET column_id = $1, name = $2, priority = $3, description = $4 WHERE id = $5`,
+		int(modifiedTask.ColumnId),
+		modifiedTask.Name,
+		modifiedTask.Priority,
+		modifiedTask.Description,
+		int(modifiedTask.Id),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return modifiedTask, nil
 }
 
-func (t TaskRepositoryImpl) UpdateName(storedTaskId common.Id, newName string) (*entity.Task, error) {
-	return nil, errors.New("UpdateName: implement me")
+func (t TaskRepositoryImpl) UpdateName(storedTaskId common.Id, newName string) (err error) {
+	_, err = t.db.Exec(
+		`UPDATE tasks SET name = $1 WHERE id = $2`,
+		newName,
+		int(storedTaskId),
+	)
+
+	return
 }
 
-func (t TaskRepositoryImpl) UpdateDescription(storedTaskId common.Id, newDescription string) (*entity.Task, error) {
-	return nil, errors.New("UpdateDescription: implement me")
+func (t TaskRepositoryImpl) UpdateDescription(storedTaskId common.Id, newDescription string) (err error) {
+	_, err = t.db.Exec(
+		`UPDATE tasks SET description = $1 WHERE id = $2`,
+		newDescription,
+		int(storedTaskId),
+	)
+
+	return
 }
 
-func (t TaskRepositoryImpl) UpdateParentColumn(storedTaskId common.Id, newParentColumnId common.Id) (*entity.Task, error) {
-	return nil, errors.New("UpdateParentColumn: implement me")
+func (t TaskRepositoryImpl) UpdateParentColumn(storedTaskId common.Id, newParentColumnId common.Id) (err error) {
+	_, err = t.db.Exec(
+		`UPDATE tasks SET column_id = $1 WHERE id = $2`,
+		int(newParentColumnId),
+		int(storedTaskId),
+	)
+
+	return
 }
 
-func (t TaskRepositoryImpl) UpdatePriority(storedTaskId common.Id, priority int) (*entity.Task, error) {
-	return nil, errors.New("UpdatePriority: implement me")
+func (t TaskRepositoryImpl) UpdatePriority(storedTaskId common.Id, newPriority int) (err error) {
+	_, err = t.db.Exec(
+		`UPDATE tasks SET priority = $1 WHERE id = $2`,
+		newPriority,
+		int(storedTaskId),
+	)
+
+	return
 }
 
 func (t TaskRepositoryImpl) Delete(storedTaskId common.Id) error {
-	return errors.New("Delete: implement me")
+	res, err := t.db.Exec(`DELETE FROM tasks WHERE id = $1`, storedTaskId)
+
+	if err == nil {
+		count, err := res.RowsAffected()
+		if err != nil {
+			return err
+		} else if count != 1 {
+			return errors.New("the record cannot be found, thus it is not deleted")
+		}
+	}
+
+	return nil
 }
