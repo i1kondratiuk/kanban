@@ -19,6 +19,7 @@ func NewTasksFromEntities(tes []*entity.Task) []*apimodel.Task {
 func NewTaskFromEntity(te *entity.Task) *apimodel.Task {
 	return &apimodel.Task{
 		Id:          te.Id,
+		ColumnId:    te.ColumnId,
 		Name:        te.Name,
 		Description: te.Description,
 		Priority:    te.Priority,
@@ -43,6 +44,7 @@ func NewTaskFromAggregate(ta *aggregate.TaskAggregate) *apimodel.Task {
 			comments,
 			&apimodel.Comment{
 				Id:              comment.Id,
+				ParentId:        comment.ParentId,
 				CreatedDateTime: comment.CreatedDateTime,
 				Comment:         comment.Comment,
 			},
@@ -51,6 +53,7 @@ func NewTaskFromAggregate(ta *aggregate.TaskAggregate) *apimodel.Task {
 
 	return &apimodel.Task{
 		Id:          ta.TaskAggregateRoot.Id,
+		ColumnId:    ta.TaskAggregateRoot.ColumnId,
 		Name:        ta.TaskAggregateRoot.Name,
 		Description: ta.TaskAggregateRoot.Description,
 		Priority:    ta.TaskAggregateRoot.Priority,

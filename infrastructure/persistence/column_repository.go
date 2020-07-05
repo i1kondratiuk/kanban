@@ -39,7 +39,8 @@ func (c ColumnRepositoryImpl) GetAllWithRelatedTasksBy(parentBoardId common.Id) 
 		       t.priority,
 		       t.description
 		FROM columns c LEFT JOIN tasks t ON t.column_id = c.id
-		WHERE c.board_id = $1`,
+		WHERE c.board_id = $1
+		ORDER BY c.position, t.priority`,
 		parentBoardId,
 	)
 
@@ -50,6 +51,8 @@ func (c ColumnRepositoryImpl) GetAllWithRelatedTasksBy(parentBoardId common.Id) 
 	defer rows.Close()
 
 	columnAggregatesByColumnIds := make(map[common.Id]*aggregate.ColumnAggregate)
+
+	columnAggregates := make([]*aggregate.ColumnAggregate, 0, len(columnAggregatesByColumnIds))
 
 	for rows.Next() {
 		var (
@@ -106,16 +109,11 @@ func (c ColumnRepositoryImpl) GetAllWithRelatedTasksBy(parentBoardId common.Id) 
 					}
 				}
 
+				columnAggregates = append(columnAggregates, &columnAggregateToPutInMap)
+
 				columnAggregatesByColumnIds[columnId] = &columnAggregateToPutInMap
 			}
 		}
-
-	}
-
-	columnAggregates := make([]*aggregate.ColumnAggregate, 0, len(columnAggregatesByColumnIds))
-
-	for _, v := range columnAggregatesByColumnIds {
-		columnAggregates = append(columnAggregates, v)
 	}
 
 	return columnAggregates, nil
@@ -229,7 +227,7 @@ func (c ColumnRepositoryImpl) Insert(newColumn *entity.Column) (*entity.Column, 
 	var insertedColumnId int64
 
 	if err := c.db.QueryRow(
-		`INSERT INTO columns (board_id, name, position) VALUES ($1, $2) RETURNING id`,
+		`INSERT INTO columns (board_id, name, position) VALUES ($1, $2, $3) RETURNING id`,
 		int64(newColumn.BoardId),
 		newColumn.Name,
 		newColumn.Position,

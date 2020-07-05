@@ -10,6 +10,7 @@ import (
 // Comment represents a comment
 type Comment struct {
 	Id              common.Id     `json:"id"`
+	ParentId        common.Id     `json:"parentId"`
 	CreatedDateTime time.Time     `json:"createdDateTime"`
 	Comment         value.Comment `json:"comment"`
 }

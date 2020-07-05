@@ -32,6 +32,7 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 
 	rows, err := t.db.Query(`
 		SELECT
+		       t.column_id,
 		       t.name,
 		       t.description,
 		       t.priority,
@@ -40,7 +41,7 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 		       c.created_at
 		FROM tasks t LEFT JOIN comments c ON t.id = c.parent_id
 		WHERE t.id = $1
-		ORDER BY c.created_at DESC`,
+		ORDER BY t.priority, c.created_at DESC`,
 		taskId,
 	)
 
@@ -61,6 +62,7 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 
 	for rows.Next() {
 		var (
+			columnId               sql.NullInt64
 			taskName               sql.NullString
 			taskDescription        sql.NullString
 			taskPriority           sql.NullInt32
@@ -70,6 +72,7 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 		)
 
 		err = rows.Scan(
+			&columnId,
 			&taskName,
 			&taskDescription,
 			&taskPriority,
@@ -80,6 +83,10 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 
 		if err != nil {
 			return nil, err
+		}
+
+		if columnId.Valid {
+			task.TaskAggregateRoot.ColumnId = common.Id(columnId.Int64)
 		}
 
 		if taskName.Valid {
@@ -95,7 +102,10 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 		}
 
 		if commentId.Valid {
-			comment := entity.Comment{Id: common.Id(commentId.Int64)}
+			comment := entity.Comment{
+				Id:       common.Id(commentId.Int64),
+				ParentId: taskId,
+			}
 
 			if commentBody.Valid {
 				comment.Comment.BodyText = value.BodyText(commentBody.String)
@@ -121,8 +131,8 @@ func (t TaskRepositoryImpl) GetAllBy(parentColumnId common.Id) ([]*entity.Task, 
 		SELECT
 		       id,
 		       name,
-		       description,
-		       priority
+		       priority,
+		       description
 		FROM tasks
 		WHERE column_id = $1`,
 		parentColumnId,
@@ -174,7 +184,7 @@ func (t TaskRepositoryImpl) GetAllBy(parentColumnId common.Id) ([]*entity.Task, 
 			}
 
 			if taskDescription.Valid {
-				task.Name = taskDescription.String
+				task.Description = taskDescription.String
 			}
 
 			tasks = append(tasks, task)
@@ -188,7 +198,7 @@ func (t TaskRepositoryImpl) Insert(newTask *entity.Task) (*entity.Task, error) {
 	var insertedTaskId int64
 
 	if err := t.db.QueryRow(
-		`INSERT INTO tasks (column_id, name, priority, description) VALUES ($1, $2) RETURNING id`,
+		`INSERT INTO tasks (column_id, name, priority, description) VALUES ($1, $2, $3, $4) RETURNING id`,
 		int64(newTask.ColumnId),
 		newTask.Name,
 		newTask.Priority,

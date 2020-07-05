@@ -37,18 +37,21 @@ func NewColumnsFromAggregates(cas []*aggregate.ColumnAggregate) []*apimodel.Colu
 func NewColumnFromAggregate(ca *aggregate.ColumnAggregate) *apimodel.Column {
 	column := &apimodel.Column{
 		Id:       ca.ColumnAggregateRoot.Id,
+		BoardId:  ca.ColumnAggregateRoot.BoardId,
 		Name:     ca.ColumnAggregateRoot.Name,
 		Position: ca.ColumnAggregateRoot.Position,
 	}
 
 	if ca.TaskEntities != nil {
 		var tasks = make([]*apimodel.Task, 0, len(ca.TaskEntities))
-		for _, taskEntity := range tasks {
+		for _, taskEntity := range ca.TaskEntities {
 			tasks = append(
 				tasks,
 				&apimodel.Task{
-					Id:   taskEntity.Id,
-					Name: taskEntity.Name,
+					Id:       taskEntity.Id,
+					ColumnId: taskEntity.ColumnId,
+					Name:     taskEntity.Name,
+					Priority: taskEntity.Priority,
 				},
 			)
 		}

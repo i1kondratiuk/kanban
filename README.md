@@ -5,6 +5,10 @@
 #### /boards
 * `GET` : gets all boards sorted by their position
 * `POST` : creates a new board
+`{
+    "name": "name1",
+    "description": "description1"
+}`
 
 #### /boards/{id}
 * `GET`: gets a board
@@ -14,6 +18,11 @@
 #### /boards/{id}/columns
 * `GET` : gets all columns
 * `POST` : creates a new column
+`{
+    "boardId": 1
+    "name": "name1",
+    "position": 1
+}`
 
 #### /columns/{id}
 * `GET`: gets a column
@@ -29,6 +38,12 @@
 #### /columns/{id}/tasks
 * `GET` : gets all tasks
 * `POST` : creates a new task
+`{
+    "columnId": 1,
+    "name": "name1",
+    "description": "description1",
+    "priority": 1
+}`
 
 #### /tasks/{id}
 * `GET`: gets a task
@@ -50,6 +65,12 @@
 #### /tasks/{id}/comments
 * `GET` : gets all comments sorted by their creation date (from newest to oldest)
 * `POST` : creates a new comment
+`{
+    "parentId": 1,
+    "comment": {
+        "bodyText": "bodyText1"
+    }
+}`
 
 #### /comments/{id}
 * `PUT` : updates a comment
