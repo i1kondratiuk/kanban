@@ -192,6 +192,8 @@ func (b BoardRepositoryImpl) Delete(storedBoardId common.Id) error {
 		} else if count != 1 {
 			return errors.New("the record cannot be found, thus it is not deleted")
 		}
+	} else {
+		return err
 	}
 
 	return nil
