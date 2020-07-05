@@ -2,6 +2,11 @@
 
 ## API
 
+Prerequisites
+Docker Compose relies on Docker Engine, so make sure you have Docker Engine installed locally.
+- Run command: `docker-compose up`
+- Server will be running at http://localhost:8080/
+
 #### /boards
 * `GET` : gets all boards sorted by their position
 * `POST` : creates a new board

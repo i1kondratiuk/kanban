@@ -18,3 +18,9 @@
 .idea
 *.iml
 config.yml
+
+# DB
+postgres-data
+
+# ENV
+.env
