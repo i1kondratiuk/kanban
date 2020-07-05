@@ -1,7 +1,0 @@
-database:
-  driver: postgres
-  host: localhost
-  name: kanban
-  port: 5432
-  user: root
-  password: password

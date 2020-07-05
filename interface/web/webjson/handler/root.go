@@ -21,6 +21,8 @@ func Run(port int) {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc("/", getWelcomePage).Methods("GET")
+
 	new(BoardManagerAppHandler).AddRoutes(r)
 	new(ColumnManagerAppHandler).AddRoutes(r)
 	new(TaskManagerAppHandler).AddRoutes(r)
@@ -29,4 +31,8 @@ func Run(port int) {
 	http.Handle("/", r)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+}
+
+func getWelcomePage(w http.ResponseWriter, r *http.Request) {
+	respondJSON(w, http.StatusOK, "Welcome to Kanban")
 }

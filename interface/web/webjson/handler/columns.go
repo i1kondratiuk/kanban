@@ -20,14 +20,14 @@ type ColumnManagerAppHandler struct {
 // AddRoutes adds ColumnManagerAppHandler routs
 func (h ColumnManagerAppHandler) AddRoutes(r *mux.Router) { // TODO get rid of the redundant path prefix for the subresource
 	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns", h.GetAllBoardColumns).Methods("GET")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns", h.CreateBoardColumn).Methods("POST")
+	r.HandleFunc("/columns", h.CreateBoardColumn).Methods("POST")
 
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}", h.GetColumn).Methods("GET")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}", h.UpdateColumn).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}", h.DeleteColumn).Methods("DELETE")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}", h.GetColumn).Methods("GET")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}", h.UpdateColumn).Methods("PUT")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}", h.DeleteColumn).Methods("DELETE")
 
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/name", h.UpdateColumnName).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/position", h.UpdateColumnPosition).Methods("PUT")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}/name", h.UpdateColumnName).Methods("PUT")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}/position", h.UpdateColumnPosition).Methods("PUT")
 }
 
 func (h ColumnManagerAppHandler) GetAllBoardColumns(w http.ResponseWriter, r *http.Request) {
@@ -145,14 +145,14 @@ func (h ColumnManagerAppHandler) UpdateColumnName(w http.ResponseWriter, r *http
 
 	columnId := common.Id(columnIdInt64)
 
-	updatedColumn, err := h.ColumnManagerApp.Rename(columnId, newName)
+	err = h.ColumnManagerApp.Rename(columnId, newName)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the column name; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedColumn)
+	respondJSON(w, http.StatusOK, "the column was renamed successfully")
 }
 
 func (h ColumnManagerAppHandler) UpdateColumnPosition(w http.ResponseWriter, r *http.Request) {
@@ -175,14 +175,14 @@ func (h ColumnManagerAppHandler) UpdateColumnPosition(w http.ResponseWriter, r *
 
 	columnId := common.Id(columnIdUntyped)
 
-	updatedColumn, err := h.ColumnManagerApp.ChangePosition(columnId, newPosition)
+	err = h.ColumnManagerApp.ChangePosition(columnId, newPosition)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the column position; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedColumn)
+	respondJSON(w, http.StatusOK, "the column was repositioned successfully")
 }
 
 func (h ColumnManagerAppHandler) DeleteColumn(w http.ResponseWriter, r *http.Request) {

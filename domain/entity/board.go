@@ -8,3 +8,9 @@ type Board struct {
 	Name        string
 	Description string
 }
+
+var _ common.Entity = &Board{}
+
+func (b Board) GetId() common.Id {
+	return b.Id
+}

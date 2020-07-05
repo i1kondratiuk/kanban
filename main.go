@@ -9,6 +9,7 @@ import (
 	"github.com/i1kondratiuk/kanban/application/api"
 	"github.com/i1kondratiuk/kanban/config"
 	"github.com/i1kondratiuk/kanban/domain/repository"
+	"github.com/i1kondratiuk/kanban/domain/service"
 	"github.com/i1kondratiuk/kanban/infrastructure/persistence"
 	"github.com/i1kondratiuk/kanban/interface/web/webjson/handler"
 )
@@ -37,6 +38,9 @@ func init() {
 	)
 
 	repository.InitBoardRepository(persistence.NewBoardRepository(db))
+	repository.InitColumnRepository(persistence.NewColumnRepository(db))
+	repository.InitTaskRepository(persistence.NewTaskRepository(db))
+	repository.InitCommentRepository(persistence.NewCommentRepository(db))
 
 	if err != nil {
 		panic(err.Error())
@@ -44,6 +48,8 @@ func init() {
 }
 
 func main() {
+	service.InitColumnService(&service.ColumnServiceImpl{})
+
 	api.InitBoardManagerApp(&api.BoardManagerAppImpl{})
 	api.InitColumnManagerApp(&api.ColumnManagerAppImpl{})
 	api.InitCommentManagerApp(&api.CommentManagerAppImpl{})

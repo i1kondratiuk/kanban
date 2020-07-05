@@ -7,10 +7,10 @@ import (
 )
 
 func NewTasksFromEntities(tes []*entity.Task) []*apimodel.Task {
-	var ts = make([]*apimodel.Task, len(tes)-1)
+	var ts = make([]*apimodel.Task, 0, len(tes))
 
-	for i, te := range tes {
-		ts[i] = NewTaskFromEntity(te)
+	for _, te := range tes {
+		ts = append(ts, NewTaskFromEntity(te))
 	}
 
 	return ts
@@ -19,40 +19,44 @@ func NewTasksFromEntities(tes []*entity.Task) []*apimodel.Task {
 func NewTaskFromEntity(te *entity.Task) *apimodel.Task {
 	return &apimodel.Task{
 		Id:          te.Id,
+		ColumnId:    te.ColumnId,
 		Name:        te.Name,
 		Description: te.Description,
 		Priority:    te.Priority,
-		Position:    te.Position,
 	}
 }
 
 func NewTasksFromAggregates(tas []*aggregate.TaskAggregate) []*apimodel.Task {
-	var ts = make([]*apimodel.Task, len(tas)-1)
+	var ts = make([]*apimodel.Task, 0, len(tas))
 
-	for i, ta := range tas {
-		ts[i] = NewTaskFromAggregate(ta)
+	for _, ta := range tas {
+		ts = append(ts, NewTaskFromAggregate(ta))
 	}
 
 	return ts
 }
 
 func NewTaskFromAggregate(ta *aggregate.TaskAggregate) *apimodel.Task {
+	var comments = make([]*apimodel.Comment, 0, len(ta.Comments))
 
-	var comments = make([]*apimodel.Comment, len(ta.Comments)-1)
-	for i, comment := range ta.Comments {
-		comments[i] = &apimodel.Comment{
-			Id:              comment.Id,
-			CreatedDateTime: comment.CreatedDateTime,
-			Comment:         comment.Comment,
-		}
+	for _, comment := range ta.Comments {
+		comments = append(
+			comments,
+			&apimodel.Comment{
+				Id:              comment.Id,
+				ParentId:        comment.ParentId,
+				CreatedDateTime: comment.CreatedDateTime,
+				Comment:         comment.Comment,
+			},
+		)
 	}
 
 	return &apimodel.Task{
-		Id:          ta.Id,
-		Name:        ta.Name,
-		Description: ta.Description,
-		Priority:    ta.Priority,
-		Position:    ta.Position,
+		Id:          ta.TaskAggregateRoot.Id,
+		ColumnId:    ta.TaskAggregateRoot.ColumnId,
+		Name:        ta.TaskAggregateRoot.Name,
+		Description: ta.TaskAggregateRoot.Description,
+		Priority:    ta.TaskAggregateRoot.Priority,
 		Comments:    comments,
 	}
 }

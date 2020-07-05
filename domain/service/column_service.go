@@ -37,8 +37,9 @@ var _ ColumnService = &ColumnServiceImpl{}
 // Creates default Column with parent Board assigned
 func (s *ColumnServiceImpl) CreateDefaultColumn(parentBoardId common.Id) *entity.Column {
 	return &entity.Column{
-		Board: entity.Board{Id: parentBoardId},
-		Name:  defaultColumnName,
+		BoardId:  parentBoardId,
+		Name:     defaultColumnName,
+		Position: 1,
 	}
 }
 
@@ -47,5 +48,5 @@ func (s *ColumnServiceImpl) IsLeftMostColumn(position int) bool {
 }
 
 func (s *ColumnServiceImpl) GetRightMostColumnPosition(boardId common.Id) (int, error) {
-	return 0, errors.New("GetAllSortedByNameAsc: implement me")
+	return 0, errors.New("GetAllSortedByNameAsc: is being developed")
 }

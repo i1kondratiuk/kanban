@@ -7,10 +7,10 @@ import (
 )
 
 func NewColumnsFromEntities(ces []*entity.Column) []*apimodel.Column {
-	var cms = make([]*apimodel.Column, len(ces)-1)
+	var cms = make([]*apimodel.Column, 0, len(ces))
 
-	for i, ce := range ces {
-		cms[i] = NewColumnFromEntity(ce)
+	for _, ce := range ces {
+		cms = append(cms, NewColumnFromEntity(ce))
 	}
 
 	return cms
@@ -25,30 +25,39 @@ func NewColumnFromEntity(ce *entity.Column) *apimodel.Column {
 }
 
 func NewColumnsFromAggregates(cas []*aggregate.ColumnAggregate) []*apimodel.Column {
-	var cs = make([]*apimodel.Column, len(cas)-1)
+	var cs = make([]*apimodel.Column, 0, len(cas))
 
-	for i, ca := range cas {
-		cs[i] = NewColumnFromAggregate(ca)
+	for _, ca := range cas {
+		cs = append(cs, NewColumnFromAggregate(ca))
 	}
 
 	return cs
 }
 
 func NewColumnFromAggregate(ca *aggregate.ColumnAggregate) *apimodel.Column {
-
-	var tasks = make([]*apimodel.Task, len(ca.TaskEntities)-1)
-	for i, taskEntity := range tasks {
-		tasks[i] = &apimodel.Task{
-			Id:       taskEntity.Id,
-			Name:     taskEntity.Name,
-			Position: taskEntity.Position,
-		}
-	}
-
-	return &apimodel.Column{
+	column := &apimodel.Column{
 		Id:       ca.ColumnAggregateRoot.Id,
+		BoardId:  ca.ColumnAggregateRoot.BoardId,
 		Name:     ca.ColumnAggregateRoot.Name,
 		Position: ca.ColumnAggregateRoot.Position,
-		Tasks:    tasks,
 	}
+
+	if ca.TaskEntities != nil {
+		var tasks = make([]*apimodel.Task, 0, len(ca.TaskEntities))
+		for _, taskEntity := range ca.TaskEntities {
+			tasks = append(
+				tasks,
+				&apimodel.Task{
+					Id:       taskEntity.Id,
+					ColumnId: taskEntity.ColumnId,
+					Name:     taskEntity.Name,
+					Priority: taskEntity.Priority,
+				},
+			)
+		}
+
+		column.Tasks = tasks
+	}
+
+	return column
 }

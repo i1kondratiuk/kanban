@@ -19,17 +19,17 @@ type TaskManagerAppHandler struct {
 
 // AddRoutes adds TaskManagerAppHandler routs
 func (h TaskManagerAppHandler) AddRoutes(r *mux.Router) { // TODO get rid of the redundant path prefix for the subresource
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks", h.GetAllTasks).Methods("GET")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks", h.CreateTask).Methods("POST")
+	r.HandleFunc("/columns/{"+columnIdAnchor+"}/tasks", h.GetAllTasks).Methods("GET")
+	r.HandleFunc("/tasks", h.CreateTask).Methods("POST")
 
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}", h.GetTask).Methods("GET")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}", h.UpdateTask).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}", h.DeleteTask).Methods("DELETE")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}", h.GetTaskWithComments).Methods("GET")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}", h.UpdateTask).Methods("PUT")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}", h.DeleteTask).Methods("DELETE")
 
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/priority", h.ChangeTaskPriority).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/status", h.ChangeTaskStatus).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/name", h.ChangeTaskName).Methods("PUT")
-	r.HandleFunc("/boards/{"+boardIdAnchor+"}/columns/{"+columnIdAnchor+"}/tasks/{"+taskIdAnchor+"}/description", h.ChangeTaskDescription).Methods("PUT")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}/priority", h.ChangeTaskPriority).Methods("PUT")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}/status", h.ChangeTaskStatus).Methods("PUT")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}/name", h.ChangeTaskName).Methods("PUT")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}/description", h.ChangeTaskDescription).Methods("PUT")
 }
 
 func (h TaskManagerAppHandler) GetAllTasks(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func (h TaskManagerAppHandler) GetAllTasks(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	storedTasks, err := h.TaskManagerApp.GetAllColumnTasks(common.Id(columnId))
+	storedTasks, err := h.TaskManagerApp.GetTasksBy(common.Id(columnId))
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to get tasks; "+err.Error())
@@ -72,7 +72,7 @@ func (h TaskManagerAppHandler) CreateTask(w http.ResponseWriter, r *http.Request
 	respondJSON(w, http.StatusOK, newTaskStored)
 }
 
-func (h TaskManagerAppHandler) GetTask(w http.ResponseWriter, r *http.Request) {
+func (h TaskManagerAppHandler) GetTaskWithComments(w http.ResponseWriter, r *http.Request) {
 	h.TaskManagerApp = api.GetTaskManagerApp()
 
 	params := mux.Vars(r)
@@ -85,7 +85,7 @@ func (h TaskManagerAppHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 
 	taskId := common.Id(taskIdInt64)
 
-	storedTasks, err := h.TaskManagerApp.GeTask(taskId)
+	storedTasks, err := h.TaskManagerApp.GetTaskWithAllCommentsGroupedByCreatedDateTime(taskId)
 
 	if err != nil {
 		respondError(w, http.StatusNotFound, "failed to get the task; "+err.Error())
@@ -164,14 +164,12 @@ func (h TaskManagerAppHandler) ChangeTaskPriority(w http.ResponseWriter, r *http
 
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.Prioritize(taskId, newPriority)
-
-	if err != nil {
+	if err = h.TaskManagerApp.Prioritize(taskId, newPriority); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task priority; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task priority was updates successfully")
 }
 
 func (h TaskManagerAppHandler) ChangeTaskStatus(w http.ResponseWriter, r *http.Request) {
@@ -202,14 +200,12 @@ func (h TaskManagerAppHandler) ChangeTaskStatus(w http.ResponseWriter, r *http.R
 	columnId := common.Id(columnIdInt64)
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.ChangeStatus(taskId, columnId)
-
-	if err != nil {
+	if err = h.TaskManagerApp.ChangeStatus(taskId, columnId); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task status; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task status was updates successfully")
 }
 
 func (h TaskManagerAppHandler) ChangeTaskName(w http.ResponseWriter, r *http.Request) {
@@ -232,14 +228,12 @@ func (h TaskManagerAppHandler) ChangeTaskName(w http.ResponseWriter, r *http.Req
 
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.ChangeName(taskId, newName)
-
-	if err != nil {
+	if err = h.TaskManagerApp.ChangeName(taskId, newName); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task name; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task name was updates successfully")
 }
 
 func (h TaskManagerAppHandler) ChangeTaskDescription(w http.ResponseWriter, r *http.Request) {
@@ -262,12 +256,10 @@ func (h TaskManagerAppHandler) ChangeTaskDescription(w http.ResponseWriter, r *h
 
 	taskId := common.Id(taskIdInt64)
 
-	updatedTask, err := h.TaskManagerApp.ChangeDescription(taskId, newDescription)
-
-	if err != nil {
+	if err = h.TaskManagerApp.ChangeDescription(taskId, newDescription); err != nil {
 		respondError(w, http.StatusNotFound, "failed to update the task description; "+err.Error())
 		return
 	}
 
-	respondJSON(w, http.StatusOK, updatedTask)
+	respondJSON(w, http.StatusOK, "the task description was updates successfully")
 }
