@@ -229,7 +229,8 @@ func (c ColumnRepositoryImpl) Insert(newColumn *entity.Column) (*entity.Column, 
 	var insertedColumnId int64
 
 	if err := c.db.QueryRow(
-		`INSERT INTO columns (name, position) VALUES ($1, $2) RETURNING id`,
+		`INSERT INTO columns (board_id, name, position) VALUES ($1, $2) RETURNING id`,
+		int64(newColumn.BoardId),
 		newColumn.Name,
 		newColumn.Position,
 	).Scan(&insertedColumnId); err != nil {

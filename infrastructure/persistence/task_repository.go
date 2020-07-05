@@ -189,7 +189,7 @@ func (t TaskRepositoryImpl) Insert(newTask *entity.Task) (*entity.Task, error) {
 
 	if err := t.db.QueryRow(
 		`INSERT INTO tasks (column_id, name, priority, description) VALUES ($1, $2) RETURNING id`,
-		int(newTask.ColumnId),
+		int64(newTask.ColumnId),
 		newTask.Name,
 		newTask.Priority,
 		newTask.Description,
@@ -205,7 +205,7 @@ func (t TaskRepositoryImpl) Insert(newTask *entity.Task) (*entity.Task, error) {
 func (t TaskRepositoryImpl) Update(modifiedTask *entity.Task) (*entity.Task, error) {
 	_, err := t.db.Exec(
 		`UPDATE tasks SET column_id = $1, name = $2, priority = $3, description = $4 WHERE id = $5`,
-		int(modifiedTask.ColumnId),
+		int64(modifiedTask.ColumnId),
 		modifiedTask.Name,
 		modifiedTask.Priority,
 		modifiedTask.Description,
@@ -223,7 +223,7 @@ func (t TaskRepositoryImpl) UpdateName(storedTaskId common.Id, newName string) (
 	_, err = t.db.Exec(
 		`UPDATE tasks SET name = $1 WHERE id = $2`,
 		newName,
-		int(storedTaskId),
+		int64(storedTaskId),
 	)
 
 	return
@@ -233,7 +233,7 @@ func (t TaskRepositoryImpl) UpdateDescription(storedTaskId common.Id, newDescrip
 	_, err = t.db.Exec(
 		`UPDATE tasks SET description = $1 WHERE id = $2`,
 		newDescription,
-		int(storedTaskId),
+		int64(storedTaskId),
 	)
 
 	return
@@ -242,8 +242,8 @@ func (t TaskRepositoryImpl) UpdateDescription(storedTaskId common.Id, newDescrip
 func (t TaskRepositoryImpl) UpdateParentColumn(storedTaskId common.Id, newParentColumnId common.Id) (err error) {
 	_, err = t.db.Exec(
 		`UPDATE tasks SET column_id = $1 WHERE id = $2`,
-		int(newParentColumnId),
-		int(storedTaskId),
+		int64(newParentColumnId),
+		int64(storedTaskId),
 	)
 
 	return
@@ -253,7 +253,7 @@ func (t TaskRepositoryImpl) UpdatePriority(storedTaskId common.Id, newPriority i
 	_, err = t.db.Exec(
 		`UPDATE tasks SET priority = $1 WHERE id = $2`,
 		newPriority,
-		int(storedTaskId),
+		int64(storedTaskId),
 	)
 
 	return

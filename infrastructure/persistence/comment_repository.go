@@ -94,7 +94,8 @@ func (c CommentRepositoryImpl) Insert(newComment *entity.Comment) (*entity.Comme
 	var insertedCommentId int64
 
 	if err := c.db.QueryRow(
-		`INSERT INTO comments (body) VALUES ($1) RETURNING id`,
+		`INSERT INTO comments (parent_id, body) VALUES ($1) RETURNING id`,
+		int64(newComment.ParentId),
 		string(newComment.Comment.BodyText),
 	).Scan(&insertedCommentId); err != nil {
 		return nil, err
