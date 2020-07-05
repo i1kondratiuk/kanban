@@ -9,6 +9,7 @@ import (
 	"github.com/i1kondratiuk/kanban/application/api"
 	"github.com/i1kondratiuk/kanban/config"
 	"github.com/i1kondratiuk/kanban/domain/repository"
+	"github.com/i1kondratiuk/kanban/domain/service"
 	"github.com/i1kondratiuk/kanban/infrastructure/persistence"
 	"github.com/i1kondratiuk/kanban/interface/web/webjson/handler"
 )
@@ -47,6 +48,8 @@ func init() {
 }
 
 func main() {
+	service.InitColumnService(&service.ColumnServiceImpl{})
+
 	api.InitBoardManagerApp(&api.BoardManagerAppImpl{})
 	api.InitColumnManagerApp(&api.ColumnManagerAppImpl{})
 	api.InitCommentManagerApp(&api.CommentManagerAppImpl{})
