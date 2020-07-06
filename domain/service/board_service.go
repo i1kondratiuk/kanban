@@ -9,7 +9,7 @@ import (
 
 // BoardService represents the service to handle business rules related to Kanban Boards
 type BoardService interface {
-	HasColumns(storedBoardId common.Id) error
+	IsColumnDeletable(storedBoardId common.Id, numberOfColumnsToDelete int) (bool, error)
 }
 
 // BoardServiceImpl is the implementation of BoardService
@@ -31,16 +31,16 @@ func InitBoardService(a BoardService) {
 var _ BoardService = &BoardServiceImpl{}
 
 // Checks whether the board has columns associated with it
-func (s *BoardServiceImpl) HasColumns(storedBoardId common.Id) error {
+func (s *BoardServiceImpl) IsColumnDeletable(storedBoardId common.Id, numberOfColumnsToDelete int) (bool, error) {
 	storedColumnsNumber, err := repository.GetColumnRepository().CountAllBy(storedBoardId)
 
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 
-	if storedColumnsNumber < 1 {
-		return errors.New("every board should have at least one column")
+	if storedColumnsNumber-numberOfColumnsToDelete < 1 {
+		return false, errors.New("every board should have at least one column")
 	}
 
-	return nil
+	return true, nil
 }

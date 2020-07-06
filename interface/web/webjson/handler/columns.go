@@ -191,14 +191,14 @@ func (h ColumnManagerAppHandler) DeleteColumn(w http.ResponseWriter, r *http.Req
 	columnIdInt64, err := strconv.ParseInt(params[columnIdAnchor], 10, 64)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "failed to create the column; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to delete the column; "+err.Error())
 		return
 	}
 
 	columnId := common.Id(columnIdInt64)
 
 	if err := h.ColumnManagerApp.Delete(columnId); err != nil {
-		respondError(w, http.StatusNotFound, "failed to create the column; "+err.Error())
+		respondError(w, http.StatusNotFound, "failed to delete the column; "+err.Error())
 		return
 	}
 

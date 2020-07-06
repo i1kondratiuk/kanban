@@ -19,6 +19,7 @@ func NewColumnsFromEntities(ces []*entity.Column) []*apimodel.Column {
 func NewColumnFromEntity(ce *entity.Column) *apimodel.Column {
 	return &apimodel.Column{
 		Id:       ce.Id,
+		BoardId:  ce.BoardId,
 		Name:     ce.Name,
 		Position: ce.Position,
 	}

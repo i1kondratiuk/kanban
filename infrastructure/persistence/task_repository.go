@@ -55,12 +55,16 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 
 	defer rows.Close()
 
-	task := aggregate.TaskAggregate{
-		TaskAggregateRoot: &entity.Task{Id: taskId},
-		Comments:          []*entity.Comment{},
-	}
+	var task aggregate.TaskAggregate
 
 	for rows.Next() {
+		if task.TaskAggregateRoot == nil {
+			task = aggregate.TaskAggregate{
+				TaskAggregateRoot: &entity.Task{Id: taskId},
+				Comments:          []*entity.Comment{},
+			}
+		}
+
 		var (
 			columnId               sql.NullInt64
 			taskName               sql.NullString
@@ -117,6 +121,10 @@ func (t TaskRepositoryImpl) GetTaskWithAllCommentsGroupedByCreatedDateTime(taskI
 
 			task.Comments = append(task.Comments, &comment)
 		}
+	}
+
+	if task.TaskAggregateRoot == nil {
+		return nil, errors.New("there is no record with id " + strconv.Itoa(int(taskId)))
 	}
 
 	return &task, nil

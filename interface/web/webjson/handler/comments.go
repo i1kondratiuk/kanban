@@ -21,7 +21,7 @@ type CommentManagerAppHandler struct {
 // AddRoutes adds CommentManagerAppHandler routs
 func (h CommentManagerAppHandler) AddRoutes(r *mux.Router) { // TODO get rid of the redundant path prefix for the subresource
 	r.HandleFunc("/tasks/{"+taskIdAnchor+"}/comments", h.GetAllComments).Methods("GET")
-	r.HandleFunc("/comments", h.CreateComment).Methods("POST")
+	r.HandleFunc("/tasks/{"+taskIdAnchor+"}/comments", h.CreateComment).Methods("POST")
 
 	r.HandleFunc("/comments/{"+commentIdAnchor+"}", h.UpdateComment).Methods("PUT")
 	r.HandleFunc("/comments/{"+commentIdAnchor+"}", h.DeleteComment).Methods("DELETE")
@@ -59,6 +59,11 @@ func (h CommentManagerAppHandler) CreateComment(w http.ResponseWriter, r *http.R
 		respondError(w, http.StatusNotFound, "failed to create the column; "+err.Error())
 		return
 	}
+
+	params := mux.Vars(r)
+	taskIdInt64, err := strconv.ParseInt(params[taskIdAnchor], 10, 64)
+
+	newComment.ParentId = common.Id(taskIdInt64)
 
 	newCommentStored, err := h.CommentManagerApp.Create(&newComment)
 
