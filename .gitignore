@@ -17,7 +17,6 @@
 # JetBrains IDE
 .idea
 *.iml
-config.yml
 
 # DB
 postgres-data

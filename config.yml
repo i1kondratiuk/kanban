@@ -1,0 +1,7 @@
+database:
+  driver: postgres
+  host: db
+  name: kanban
+  port: 5432
+  user: admin
+  password: password
