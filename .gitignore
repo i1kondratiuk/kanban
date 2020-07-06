@@ -20,6 +20,3 @@
 
 # DB
 postgres-data
-
-# ENV
-.env
