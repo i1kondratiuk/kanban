@@ -4,7 +4,9 @@
 
 Prerequisites
 Docker Compose relies on Docker Engine, so make sure you have Docker Engine installed locally.
-- Run command: `docker-compose up`
+- git clone https://github.com/i1kondratiuk/kanban.git
+- git checkout develop
+- Run command: `docker-compose up` from the project root folder context
 - Server will be running at http://localhost:8080/
 
 #### /boards
