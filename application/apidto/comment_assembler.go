@@ -18,6 +18,7 @@ func NewComments(ces []*entity.Comment) []*apimodel.Comment {
 func NewComment(ce *entity.Comment) *apimodel.Comment {
 	return &apimodel.Comment{
 		Id:              ce.Id,
+		ParentId:        ce.ParentId,
 		CreatedDateTime: ce.CreatedDateTime,
 		Comment:         ce.Comment,
 	}

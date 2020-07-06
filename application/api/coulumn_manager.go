@@ -95,8 +95,14 @@ func (a *ColumnManagerAppImpl) Delete(storedColumnId common.Id) error {
 		return err
 	}
 
-	if err := service.GetBoardService().HasColumns(parentBoardId); err != nil {
+	isColumnDeletable, err := service.GetBoardService().IsColumnDeletable(parentBoardId, 1)
+
+	if err != nil {
 		return err
+	}
+
+	if !isColumnDeletable {
+		return nil
 	}
 
 	if err := repository.GetColumnRepository().Delete(storedColumnId); err != nil {

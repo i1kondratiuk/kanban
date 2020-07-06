@@ -48,6 +48,7 @@ func init() {
 }
 
 func main() {
+	service.InitBoardService(&service.BoardServiceImpl{})
 	service.InitColumnService(&service.ColumnServiceImpl{})
 
 	api.InitBoardManagerApp(&api.BoardManagerAppImpl{})

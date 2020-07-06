@@ -146,18 +146,21 @@ func (c ColumnRepositoryImpl) GetBy(columnId common.Id) (*entity.Column, error) 
 	}
 
 	var (
+		boardId        sql.NullInt64
 		columnName     sql.NullString
 		columnPosition sql.NullInt32
 	)
 
 	err := c.db.QueryRow(`
 		SELECT
+		       board_id,
 		       name,
 		       position
 		FROM columns
 		WHERE id = $1`,
 		columnId,
 	).Scan(
+		&boardId,
 		&columnName,
 		&columnPosition,
 	)
@@ -171,6 +174,10 @@ func (c ColumnRepositoryImpl) GetBy(columnId common.Id) (*entity.Column, error) 
 	}
 
 	column := entity.Column{Id: columnId}
+
+	if boardId.Valid {
+		column.BoardId = common.Id(boardId.Int64)
+	}
 
 	if columnName.Valid {
 		column.Name = columnName.String
